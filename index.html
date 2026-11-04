@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CG Sericulture & Agriculture Exam Simulator</title>
-  <!-- jsPDF & html2canvas for PDF Report Card Export -->
+  <!-- jsPDF & html2canvas for PDF Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
@@ -13,7 +13,7 @@
       --primary-dark: #0d47a1;
       --success: #2e7d32;
       --danger: #c62828;
-      --warning: #f57f17;
+      --warning: #ef6c00;
       --bg: #f4f6f9;
       --surface: #ffffff;
       --text: #212121;
@@ -23,20 +23,19 @@
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { margin: 0; background: var(--bg); color: var(--text); -webkit-tap-highlight-color: transparent; }
     .header { background: var(--primary); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .container { max-width: 850px; margin: 12px auto; padding: 0 12px; }
+    .container { max-width: 800px; margin: 12px auto; padding: 0 12px; }
     .card { background: var(--surface); padding: 16px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.05); margin-bottom: 14px; }
     h3 { margin: 0 0 8px 0; font-size: 16px; font-weight: 700; }
     p { margin: 0 0 10px 0; font-size: 13px; color: var(--muted); }
-    .btn { background: var(--primary); color: #fff; border: none; padding: 13px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; margin-top: 6px; display: block; text-align: center; }
+    .btn { background: var(--primary); color: #fff; border: none; padding: 12px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; margin-top: 6px; display: block; text-align: center; }
     .btn:active { background: var(--primary-dark); }
     .btn-green { background: var(--success); }
     .btn-red { background: var(--danger); }
     .btn-pdf { background: #d32f2f; color: #fff; }
     .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-    textarea, input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; margin-bottom: 8px; background: #fff; }
-    textarea { font-family: monospace; resize: vertical; }
+    input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; margin-bottom: 8px; background: #fff; }
     .hidden { display: none !important; }
-    .timer { font-size: 16px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.25); padding: 4px 12px; border-radius: 20px; letter-spacing: 0.5px; }
+    .timer { font-size: 16px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.25); padding: 4px 12px; border-radius: 20px; }
     .option { border: 1px solid var(--border); padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; font-size: 14.5px; line-height: 1.4; }
     .option:hover { background: #f0f7ff; }
     .option.selected { background: #e3f2fd; border-color: var(--primary); font-weight: 600; }
@@ -48,7 +47,6 @@
     .badge-correct { color: var(--success); font-weight: 600; }
     .badge-wrong { color: var(--danger); font-weight: 600; }
     .badge-skip { color: var(--warning); font-weight: 600; }
-    #status { font-weight: 700; font-size: 13px; margin-top: 8px; text-align: center; }
     #printableReport { background: #ffffff; padding: 16px; border-radius: 8px; }
     .report-header { border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 12px; }
     .report-title { font-size: 18px; font-weight: bold; color: var(--primary); margin: 0; }
@@ -58,41 +56,23 @@
 <body>
 
   <div class="header">
-    <div style="font-weight:700; font-size:16px;">🌾 Sericulture & Agronomy Exam Simulator</div>
+    <div style="font-weight:700; font-size:16px;">🌾 Sericulture & Agriculture Exam Simulator</div>
     <div id="timerDisplay" class="timer hidden">⏱️ 00:00</div>
   </div>
 
+  <!-- Home View -->
   <div class="container" id="homeView">
     <div class="card" style="border-left: 4px solid var(--success);">
-      <h3 style="color:var(--success); margin-bottom:4px;">🎯 CG Sericulture Field Officer & State Exams Ready</h3>
-      <p style="margin:0;">इस सिम्युलेटर में <b>CG Sericulture Field Officer Master Question Bank</b> के 50 प्रामाणिक प्रश्न अंतर्निहित हैं। आप सीधे मॉक शुरू कर सकते हैं या Gemini से तैयार कस्टम JSON लोड कर सकते हैं।</p>
+      <h3 style="color:var(--success); margin-bottom:4px;">🎯 CG Sericulture Field Officer Mock Test</h3>
+      <p style="margin:0;">इस टेस्ट में सस्य विज्ञान, रेशम प्रभाग, कीटपालन एवं पोषक वृक्षों के 50 प्रामाणिक प्रश्न शामिल हैं। किसी API Key की आवश्यकता नहीं है।</p>
     </div>
 
     <div class="card">
-      <h3>🏆 Official Sericulture Practice Mock</h3>
-      <p>छत्तीसगढ़ रेशम प्रभाग, तसर कीटपालन (Raily/Daba), पोषक वृक्ष एवं कीट विज्ञान पर आधारित 50 प्रश्नों का आधिकारिक टेस्ट:</p>
-      <button class="btn btn-green" type="button" onclick="startBuiltInSericultureMock()">🚀 Start Sericulture Master Mock (50 MCQs - 30 Min)</button>
-    </div>
-
-    <div class="card">
-      <h3>📥 Paste Custom Gemini Questions (Zero-Key Mode)</h3>
-      <label style="font-size:12px; font-weight:600; color:var(--muted);">परीक्षार्थी का नाम (Candidate Name for PDF Report):</label>
+      <h3>👤 परीक्षार्थी विवरण</h3>
+      <label style="font-size:12px; font-weight:600; color:var(--muted);">अपना नाम दर्ज करें (PDF स्कोरकार्ड के लिए):</label>
       <input type="text" id="candidateNameInput" placeholder="अपना नाम लिखें" value="Vishal Tripathi">
 
-      <label style="font-size:12px; font-weight:600; color:var(--muted);">विषय नाम / शीर्षक (Test Title):</label>
-      <input type="text" id="testTitleInput" placeholder="सस्य विज्ञान / CG Sericulture Mock Test">
-
-      <label style="font-size:12px; font-weight:600; color:var(--muted);">अन्य कोई JSON कोड यहाँ पेस्ट करें:</label>
-      <textarea id="jsonInput" rows="5" placeholder='[{"question":"...","options":["A","B","C","D"],"answer":0}]'></textarea>
-
-      <button class="btn" type="button" onclick="loadQuestionsFromJSON()">▶️ Start Custom Pasted Exam</button>
-      <div id="status"></div>
-    </div>
-
-    <div class="card">
-      <h3>⚡ Standard Practice Mocks</h3>
-      <button class="btn btn-outline" type="button" onclick="startDefaultMock(50)">📝 Quick Agronomy Practice: 50 Questions (30 min)</button>
-      <button class="btn" style="background:#37474f; margin-top:8px;" type="button" onclick="startDefaultMock(100)">🏆 Full Length Agriculture Test: 100 Questions (60 min)</button>
+      <button class="btn btn-green" type="button" onclick="startTest()">🚀 Start Test (50 Questions - 30 Minutes)</button>
     </div>
   </div>
 
@@ -100,4 +80,21 @@
   <div class="container hidden" id="testView">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <span id="qIndex" style="font-weight:700; color:var(--primary);
+        <span id="qIndex" style="font-weight:700; color:var(--primary); font-size:14px;">Question 1 of 50</span>
+        <button class="btn btn-red" style="width:auto; padding:6px 14px; margin:0;" type="button" onclick="confirmSubmit()">Submit Test</button>
+      </div>
+      <div id="qText" style="font-size:15.5px; font-weight:600; line-height:1.45; margin-bottom:16px;"></div>
+      <div id="optionsContainer"></div>
+      
+      <div style="display:flex; justify-content:space-between; gap:10px; margin-top:16px;">
+        <button class="btn btn-outline" id="prevBtn" type="button" onclick="navigateQuestion(-1)">Previous</button>
+        <button class="btn" id="nextBtn" type="button" onclick="navigateQuestion(1)">Save & Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result View -->
+  <div class="container hidden" id="resultView">
+    <div class="card" id="printableReport">
+      <div class="report-header">
+        <div
