@@ -52,7 +52,7 @@
   <div class="container" id="homeView">
     <div class="card" style="border-left: 4px solid var(--success);">
       <h3 style="color:var(--success); margin-bottom:4px;">✨ डायरेक्ट मोड सक्रिय है</h3>
-      <p style="margin:0;">अब किसी भी प्रकार की API Key की आवश्यकता नहीं है। सीधे अपनी PDF चुनें और टेस्ट चालू करें।</p>
+      <p style="margin:0;">बिना किसी API Key के सीधे PDF अपलोड करके टेस्ट शुरू करें।</p>
     </div>
 
     <div class="card">
@@ -163,6 +163,39 @@
       return rawStr || "कृषि एवं सस्य विज्ञान नोट्स";
     }
 
+    // AI द्वारा भेजे गए डेटा को सुरक्षित रूप से साफ़ और मानकीकृत करना
+    function normalizeQuestions(parsed) {
+      let list = Array.isArray(parsed) ? parsed : (parsed.questions || parsed.mcqs || []);
+      if (!Array.isArray(list) || list.length === 0) return [];
+
+      return list.map((item, idx) => {
+        const qText = item.question || item.q || `प्रश्न ${idx + 1}`;
+        let opts = item.options || item.choices || item.opts;
+
+        if (Array.isArray(opts)) {
+          opts = opts.map(o => String(o));
+        } else if (typeof opts === 'object' && opts !== null) {
+          opts = Object.values(opts).map(o => String(o));
+        } else {
+          opts = ["विकल्प A", "विकल्प B", "विकल्प C", "विकल्प D"];
+        }
+
+        while (opts.length < 4) {
+          opts.push(`विकल्प ${String.fromCharCode(65 + opts.length)}`);
+        }
+
+        let ans = 0;
+        if (typeof item.answer === 'number' && item.answer >= 0 && item.answer < opts.length) {
+          ans = item.answer;
+        } else if (typeof item.answer === 'string') {
+          const charCode = item.answer.trim().toUpperCase().charCodeAt(0) - 65;
+          if (charCode >= 0 && charCode < opts.length) ans = charCode;
+        }
+
+        return { question: qText, options: opts.slice(0, 4), answer: ans };
+      });
+    }
+
     async function processPdf() {
       const status = document.getElementById('status');
       const fileInput = document.getElementById('pdfFileInput');
@@ -180,17 +213,14 @@
         const fullText = await extractPdfText(fileInput.files[0]);
         status.innerText = "🤖 2/2: AI सवाल तैयार कर रहा है (15-20 सेकंड रुकें)...";
 
-        const prompt = `Act as an expert Agricultural Science Exam Controller for State PCS / Competitive exams. Based on the provided text, generate exactly 30 to 50 objective Multiple Choice Questions (MCQs) in Hindi focused on: ${currentSubject}. Each question must have 4 clear options and exactly one correct answer index (0, 1, 2, or 3). Strictly output ONLY a valid JSON Array with format: [{"question":"प्रश्न...","options":["A","B","C","D"],"answer":0}]. Do not write markdown, code blocks, or explanations.\n\nText:\n${fullText.slice(0, 7000)}`;
+        const prompt = `Act as an expert Agricultural Science Exam Controller. Based on this text, create objective MCQs in Hindi for: ${currentSubject}. Output strictly a JSON Array where every item has: "question" (string), "options" (array of 4 strings), and "answer" (integer 0, 1, 2, or 3). Raw JSON only:\n\nText:\n${fullText.slice(0, 6000)}`;
 
-        // Zero-Key Direct Public AI Endpoint
         const response = await fetch("https://text.pollinations.ai/", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             messages: [
-              { role: "system", content: "You are an exam generator that outputs ONLY valid JSON arrays without markdown or code fences." },
+              { role: "system", content: "You output strictly raw JSON array of MCQs: [{\"question\":\"...\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"answer\":0}]. No markdown or commentary." },
               { role: "user", content: prompt }
             ],
             model: "openai",
@@ -203,9 +233,13 @@
         const rawReply = await response.text();
         const start = rawReply.indexOf('[');
         const end = rawReply.lastIndexOf(']');
-        if (start === -1 || end === -1) throw new Error("प्रश्नों की सूची तैयार नहीं हो सकी। कृपया PDF दोबारा अपलोड करें।");
+        if (start === -1 || end === -1) throw new Error("प्रश्नों की सूची तैयार नहीं हो सकी। कृपया दोबारा प्रयास करें।");
 
-        questions = JSON.parse(rawReply.substring(start, end + 1));
+        const parsedRaw = JSON.parse(rawReply.substring(start, end + 1));
+        questions = normalizeQuestions(parsedRaw);
+
+        if (questions.length === 0) throw new Error("मान्य प्रश्न प्रारूप नहीं मिला।");
+
         timeLeft = 30 * 60;
         currentIndex = 0;
         userAnswers = {};
@@ -254,7 +288,7 @@
       document.getElementById('qText').innerText = q.question;
       const container = document.getElementById('optionsContainer');
       container.innerHTML = '';
-      q.options.forEach((opt, idx) => {
+      (q.options || []).forEach((opt, idx) => {
         const div = document.createElement('div');
         div.className = 'option' + (userAnswers[currentIndex] === idx ? ' selected' : '');
         div.innerText = `${String.fromCharCode(65 + idx)}. ${opt}`;
