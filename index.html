@@ -26,22 +26,22 @@
 <body>
 
   <div class="header">
-    <div style="font-weight:700; font-size:17px;">🌾 Agronomy Test Simulator</div>
+    <div style="font-weight:700; font-size:17px;">🌾 Agronomy Test Simulator (Gemini Pro)</div>
     <div id="timerDisplay" class="timer hidden">00:00</div>
   </div>
 
   <div class="container" id="homeView">
     <div class="card">
-      <h3 style="margin-top:0;">🔑 Google Gemini API Settings</h3>
-      <p style="font-size:13px; color:#555;">अपनी Gemini API Key यहाँ सुरक्षित सेव करें (यह केवल आपके फ़ोन के ब्राउज़र में रहेगी):</p>
-      <input type="password" id="apiKeyInput" class="input-box" placeholder="अपनी API Key यहाँ पेस्ट करें (AIza...)">
+      <h3 style="margin-top:0;">🔑 Google Gemini Pro API Settings</h3>
+      <p style="font-size:13px; color:#555;">अपनी Gemini API Key यहाँ सुरक्षित सेव करें:</p>
+      <input type="password" id="apiKeyInput" class="input-box" placeholder="अपनी API Key पेस्ट करें (AIza...)">
       <button class="btn btn-green" onclick="saveKey()">Save API Key</button>
       <div id="keyStatus" style="font-size:13px; margin-top:4px;"></div>
     </div>
 
     <div class="card">
-      <h3 style="margin-top:0;">📄 Direct PDF to Test</h3>
-      <p style="font-size:13px; color:#555;">किसी भी नोट्स या किताब की PDF चुनिए, AI सीधे 50 सवालों का टेस्ट तैयार कर देगा:</p>
+      <h3 style="margin-top:0;">📄 Direct PDF to Test (Gemini 1.5 Pro)</h3>
+      <p style="font-size:13px; color:#555;">अपनी किताब/नोट्स की PDF अपलोड करें, Pro AI सीधे उच्च स्तरीय 50 प्रश्नों का टेस्ट बनाएगा:</p>
       <input type="file" id="pdfFileInput" accept="application/pdf" class="input-box">
       <button class="btn" onclick="processPdf()">Convert PDF & Start Test</button>
       <div id="status"></div>
@@ -91,121 +91,4 @@
     function saveKey() {
       const key = document.getElementById('apiKeyInput').value.trim();
       if (!key) { alert('कृपया API Key पेस्ट करें!'); return; }
-      localStorage.setItem('gemini_api_key', key);
-      document.getElementById('keyStatus').innerHTML = '<span style="color:green;">✓ API Key सफलतापूर्वक सेव हो गई!</span>';
-      alert('API Key सुरक्षित सेव हो चुकी है!');
-    }
-
-    async function processPdf() {
-      const key = localStorage.getItem('gemini_api_key');
-      if (!key) { alert('पहले ऊपर अपनी Gemini API Key सेव करें!'); return; }
-      const file = document.getElementById('pdfFileInput').files[0];
-      if (!file) { alert('कृपया पहले एक PDF फ़ाइल चुनें!'); return; }
-
-      const status = document.getElementById('status');
-      status.innerText = "⏳ PDF पढ़ी जा रही है...";
-
-      try {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        let fullText = "";
-        const maxPages = Math.min(pdf.numPages, 10);
-        for (let i = 1; i <= maxPages; i++) {
-          const page = await pdf.getPage(i);
-          const textContent = await page.getTextContent();
-          fullText += textContent.items.map(s => s.str).join(' ') + "\n";
-        }
-
-        status.innerText = "🤖 Gemini AI सवाल तैयार कर रहा है (10-15 सेकंड रुकें)...";
-        const prompt = "इस नोट्स/टेक्स्ट से कृषि/एग्रोनॉमी या सामान्य अध्ययन के 50 उच्च गुणवत्ता वाले वस्तुनिष्ठ बहुविकल्पीय प्रश्न (MCQs) हिंदी में तैयार करें। प्रत्येक प्रश्न में 4 विकल्प (options) होने चाहिए और एक सही उत्तर (answer: 0, 1, 2, or 3) होना चाहिए। आउटपुट केवल शुद्ध JSON Array फॉर्मेट में दें: [{\"question\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer\":0}]. कोई अतिरिक्त व्याख्या या मार्कडाउन न दें।\n\nटेक्स्ट:\n" + fullText.slice(0, 8000);
-
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
-
-        const data = await response.json();
-        const rawReply = data.candidates[0].content.parts[0].text;
-        const cleanJson = rawReply.replace(/```json/g, '').replace(/```/g, '').trim();
-        questions = JSON.parse(cleanJson);
-
-        status.innerText = "✓ टेस्ट तैयार!";
-        startTestUI(30);
-      } catch (err) {
-        status.innerText = "❌ त्रुटि: " + err.message;
-        alert('टेस्ट बनाने में समस्या आई। कृपया API Key और PDF दोबारा जाँचें।');
-      }
-    }
-
-    function startDefaultTest(count) {
-      questions = [];
-      for (let i = 1; i <= count; i++) {
-        questions.push({
-          question: `एग्रोनॉमी मॉडल प्रश्न संख्या ${i}: निम्न में से कौन सा विकल्प उपयुक्त है?`,
-          options: ["विकल्प A", "विकल्प B", "विकल्प C", "विकल्प D"],
-          answer: 0
-        });
-      }
-      startTestUI(count === 50 ? 30 : 60);
-    }
-
-    function startTestUI(minutes) {
-      document.getElementById('homeView').classList.add('hidden');
-      document.getElementById('testView').classList.remove('hidden');
-      document.getElementById('timerDisplay').classList.remove('hidden');
-      timeLeft = minutes * 60;
-      currentIndex = 0;
-      userAnswers = {};
-      renderQuestion();
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        const m = Math.floor(timeLeft / 60);
-        const s = timeLeft % 60;
-        document.getElementById('timerDisplay').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-        if (timeLeft <= 0) { clearInterval(timerInterval); submitTest(); }
-      }, 1000);
-    }
-
-    function renderQuestion() {
-      const q = questions[currentIndex];
-      document.getElementById('qIndex').innerText = `Question ${currentIndex + 1} of ${questions.length}`;
-      document.getElementById('qText').innerText = q.question;
-      const opts = document.getElementById('optionsContainer');
-      opts.innerHTML = '';
-      q.options.forEach((opt, idx) => {
-        const div = document.createElement('div');
-        div.className = 'option' + (userAnswers[currentIndex] === idx ? ' selected' : '');
-        div.innerText = `${String.fromCharCode(65 + idx)}. ${opt}`;
-        div.onclick = () => { userAnswers[currentIndex] = idx; renderQuestion(); };
-        opts.appendChild(div);
-      });
-    }
-
-    function nextQuestion() {
-      if (currentIndex < questions.length - 1) { currentIndex++; renderQuestion(); }
-      else { alert('यह अंतिम प्रश्न है। आप सबमिट कर सकते हैं।'); }
-    }
-
-    function submitTest() {
-      clearInterval(timerInterval);
-      let correct = 0, wrong = 0, unattempted = 0;
-      questions.forEach((q, idx) => {
-        if (userAnswers[idx] === undefined) unattempted++;
-        else if (userAnswers[idx] === q.answer) correct++;
-        else wrong++;
-      });
-      const netMarks = (correct * 1) - (wrong * 0.25);
-      document.getElementById('testView').classList.add('hidden');
-      document.getElementById('timerDisplay').classList.add('hidden');
-      document.getElementById('resultView').classList.remove('hidden');
-      document.getElementById('scoreDetails').innerHTML = `
-        कुल प्रश्न: <b>${questions.length}</b><br>
-        सही उत्तर: <b style="color:green;">${correct}</b> | गलत उत्तर: <b style="color:red;">${wrong}</b><br>
-        छोड़े गए: <b>${unattempted}</b><br><br>
-        शुद्ध प्राप्तांक (0.25 नेगेटिव मार्किंग सहित): <b style="font-size:20px; color:#1976d2;">${netMarks.toFixed(2)}</b>
-      `;
-    }
-  </script>
-</body>
-</html>
+      localStorage.setItem('gemini_
