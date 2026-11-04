@@ -1,400 +1,792 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CG Sericulture Field Officer CBT Exam Simulator</title>
-  <!-- jsPDF & html2canvas for PDF Report Card Export -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <title>Agronomy & Agriculture CBT Exam Simulator</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- MathJax for Scientific & LaTeX Formulas -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+  <!-- Chart.js for Performance Visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root {
-      --primary: #1565c0;
-      --primary-dark: #0d47a1;
-      --success: #2e7d32;
-      --danger: #c62828;
-      --warning: #ef6c00;
-      --bg: #f4f6f9;
-      --surface: #ffffff;
-      --text: #212121;
-      --muted: #616161;
-      --border: #e0e0e0;
+    @media print {
+      body * { visibility: hidden; }
+      #result-screen, #result-screen * { visibility: visible; }
+      #result-screen { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
     }
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { margin: 0; background: var(--bg); color: var(--text); -webkit-tap-highlight-color: transparent; }
-    .header { background: var(--primary); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .container { max-width: 820px; margin: 12px auto; padding: 0 12px; }
-    .card { background: var(--surface); padding: 16px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.05); margin-bottom: 14px; }
-    h3 { margin: 0 0 8px 0; font-size: 16px; font-weight: 700; }
-    p { margin: 0 0 10px 0; font-size: 13px; color: var(--muted); }
-    .btn { background: var(--primary); color: #fff; border: none; padding: 13px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; margin-top: 6px; display: block; text-align: center; }
-    .btn:active { background: var(--primary-dark); }
-    .btn-green { background: var(--success); }
-    .btn-red { background: var(--danger); }
-    .btn-pdf { background: #d32f2f; color: #fff; }
-    .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-    input, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; margin-bottom: 8px; background: #fff; }
-    .hidden { display: none !important; }
-    .timer { font-size: 16px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.25); padding: 4px 12px; border-radius: 20px; letter-spacing: 0.5px; }
-    .option { border: 1px solid var(--border); padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; font-size: 14.5px; line-height: 1.4; }
-    .option:hover { background: #f0f7ff; }
-    .option.selected { background: #e3f2fd; border-color: var(--primary); font-weight: 600; }
-    .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 15px 0; }
-    .stat-box { background: var(--bg); padding: 12px; border-radius: 8px; text-align: center; }
-    .stat-val { font-size: 22px; font-weight: 700; color: var(--primary); }
-    .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .review-item { border-bottom: 1px solid var(--border); padding: 12px 0; text-align: left; }
-    .badge-correct { color: var(--success); font-weight: 600; }
-    .badge-wrong { color: var(--danger); font-weight: 600; }
-    .badge-skip { color: var(--warning); font-weight: 600; }
-    #printableReport { background: #ffffff; padding: 16px; border-radius: 8px; }
-    .report-header { border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 12px; }
-    .report-title { font-size: 18px; font-weight: bold; color: var(--primary); margin: 0; }
-    .report-meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
-    .palette-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 10px; }
-    .p-btn { padding: 6px 0; font-size: 11px; font-weight: bold; text-align: center; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; background: #fff; }
-    .p-btn.attempted { background: #c8e6c9; border-color: var(--success); color: var(--success); }
-    .p-btn.active { border: 2px solid var(--primary); background: #bbdefb; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
   </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col">
 
-  <div class="header">
-    <div style="font-weight:700; font-size:16px;">🌾 Sericulture Field Officer CBT Simulator</div>
-    <div id="timerDisplay" class="timer hidden">⏱️ 00:00</div>
-  </div>
-
-  <!-- Home View -->
-  <div class="container" id="homeView">
-    <div class="card" style="border-left: 4px solid var(--success);">
-      <h3 style="color:var(--success); margin-bottom:4px;">🎯 CG रेशम प्रभाग & सस्य विज्ञान CBT टेस्ट</h3>
-      <p style="margin:0;">यह टेस्ट <b>CG Sericulture Field Officer Master Question Bank (Topics 1 to 12)</b> पर आधारित है। इसमें <b>-0.25 नेगेटिव मार्किंग</b>, 30 मिनट का टाइमर और <b>PDF रिपोर्ट कार्ड एक्सपोर्ट</b> शामिल है। किसी भी API Key की आवश्यकता नहीं है।</p>
-    </div>
-
-    <div class="card">
-      <h3>👤 परीक्षार्थी विवरण (Candidate Details)</h3>
-      <label style="font-size:12px; font-weight:600; color:var(--muted);">परीक्षार्थी का नाम (PDF रिपोर्ट कार्ड हेतु):</label>
-      <input type="text" id="candidateNameInput" placeholder="अपना नाम दर्ज करें" value="Vishal Tripathi">
-
-      <button class="btn btn-green" type="button" onclick="startTest()">🚀 Start Sericulture Master Exam (50 MCQs - 30 Min)</button>
-    </div>
-
-    <div class="card">
-      <h3>📥 Custom JSON Question Mode (Optional)</h3>
-      <p>यदि भविष्य में आप स्वयं Gemini द्वारा तैयार किसी अन्य विषय के प्रश्नों का टेस्ट देना चाहें, तो उसका JSON यहाँ पेस्ट कर सकते हैं:</p>
-      <textarea id="jsonInput" rows="4" placeholder='[ { "question": "...", "options": ["A","B","C","D"], "answer": 0 } ]'></textarea>
-      <button class="btn btn-outline" type="button" onclick="loadCustomQuestions()">▶️ Start Custom Pasted Exam</button>
-    </div>
-  </div>
-
-  <!-- CBT Exam View -->
-  <div class="container hidden" id="testView">
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <span id="qIndex" style="font-weight:700; color:var(--primary); font-size:14px;">Question 1 of 50</span>
-        <button class="btn btn-red" style="width:auto; padding:6px 14px; margin:0;" type="button" onclick="confirmSubmit()">Submit Test</button>
+  <!-- Navigation Header -->
+  <header class="bg-emerald-800 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">🌾</span>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">Agriculture & Agronomy Test Portal</h1>
+          <p class="text-xs text-emerald-200">CGPSC / State Agriculture Officer CBT Simulator</p>
+        </div>
       </div>
-      <div id="qText" style="font-size:15.5px; font-weight:600; line-height:1.45; margin-bottom:16px;"></div>
-      <div id="optionsContainer"></div>
+      <div class="flex items-center gap-4">
+        <div id="timer-box" class="hidden flex items-center gap-2 bg-emerald-950/80 px-3 py-1.5 rounded-lg border border-emerald-600 font-mono text-amber-300 font-bold text-base">
+          <span>⏱️</span>
+          <span id="timer-display">30:00</span>
+        </div>
+        <button id="exit-btn" onclick="confirmExit()" class="hidden text-xs bg-red-600/85 hover:bg-red-700 text-white px-3 py-1.5 rounded-md font-medium transition">
+          Exit Test
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Area -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+    <!-- 1. DASHBOARD CONFIG SCREEN -->
+    <div id="start-screen" class="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+      <div class="text-center mb-6">
+        <span class="inline-block p-3 bg-emerald-50 text-emerald-700 rounded-full text-3xl mb-3">📝</span>
+        <h2 class="text-2xl font-bold text-slate-800">CBT Mock Test & Practice Portal</h2>
+        <p class="text-sm text-slate-500 mt-1">Configure your test session</p>
+      </div>
+
+      <div class="space-y-5">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1">Select Module / Syllabus Topic</label>
+          <select id="subject-filter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+            <option value="ALL">All Topics / Full Syllabus Mock</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1">Select Test Mode</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="flex items-start p-3 border border-slate-200 rounded-xl cursor-pointer hover:border-emerald-500 transition has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50/50">
+              <input type="radio" name="mode" value="exam" checked class="mt-1 text-emerald-600 focus:ring-emerald-500">
+              <div class="ml-3">
+                <span class="block text-sm font-bold text-slate-800">Exam / CBT Mode</span>
+                <span class="block text-xs text-slate-500 mt-0.5">Strict timer, locked options, question palette, negative marking (-0.25).</span>
+              </div>
+            </label>
+            <label class="flex items-start p-3 border border-slate-200 rounded-xl cursor-pointer hover:border-emerald-500 transition has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50/50">
+              <input type="radio" name="mode" value="practice" class="mt-1 text-emerald-600 focus:ring-emerald-500">
+              <div class="ml-3">
+                <span class="block text-sm font-bold text-slate-800">Practice / Study Mode</span>
+                <span class="block text-xs text-slate-500 mt-0.5">Instant feedback upon selection, immediate step-by-step rationale.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1.5">
+          <div class="font-semibold text-slate-700 flex items-center gap-1.5">
+            <span>ℹ️</span> Marking Scheme:
+          </div>
+          <div>• <strong>Correct:</strong> +1.00 Mark</div>
+          <div>• <strong>Incorrect:</strong> -0.25 Negative Marking</div>
+          <div>• <strong>Unattempted:</strong> 0.00 Marks</div>
+          <div>• <strong>Countdown Timer:</strong> 30 Mins (50 Qs) / 60 Mins (100 Qs) auto-scaled.</div>
+        </div>
+
+        <button onclick="startTest()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow transition duration-200 text-center">
+          Start Test
+        </button>
+
+        <div id="resume-banner" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
+          <span class="text-xs text-amber-800 font-medium">An active in-progress test was found in browser storage.</span>
+          <button onclick="resumeTest()" class="text-xs bg-amber-600 hover:bg-amber-700 text-white font-semibold px-3 py-1.5 rounded-lg">Resume Test</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. QUIZ / CBT SCREEN -->
+    <div id="quiz-screen" class="hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+        
+        <!-- Left: Question & Options (3 Columns) -->
+        <div class="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-7 flex flex-col justify-between min-h-[520px]">
+          <div>
+            <div class="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 mb-4 gap-2">
+              <div class="flex items-center gap-2">
+                <span id="display-q-number" class="text-sm font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">Question 1 of 50</span>
+                <span id="display-q-subject" class="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">Agronomy</span>
+              </div>
+              <button id="mark-review-btn" onclick="toggleMarkForReview()" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-purple-300 text-purple-700 hover:bg-purple-50 transition flex items-center gap-1.5">
+                <span>🔖</span> Mark for Review
+              </button>
+            </div>
+
+            <!-- Question Text -->
+            <div id="question-text" class="text-base md:text-lg font-medium text-slate-800 leading-relaxed mb-6">
+              Question text loads here...
+            </div>
+
+            <!-- Options Container -->
+            <div id="options-container" class="space-y-3"></div>
+
+            <!-- Immediate Practice Feedback Box -->
+            <div id="practice-feedback-box" class="hidden mt-6 p-4 rounded-xl border">
+              <div id="feedback-badge" class="font-bold text-sm mb-1"></div>
+              <div id="feedback-explanation" class="text-xs text-slate-700 space-y-1"></div>
+            </div>
+          </div>
+
+          <!-- Bottom Action Buttons -->
+          <div class="border-t border-slate-100 pt-5 mt-6 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex gap-2">
+              <button id="prev-btn" onclick="navigateQuestion(-1)" class="px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition disabled:opacity-40">
+                ← Previous
+              </button>
+              <button id="clear-btn" onclick="clearCurrentAnswer()" class="px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 border border-slate-200 rounded-lg transition">
+                Clear Selection
+              </button>
+            </div>
+            <div class="flex gap-2">
+              <button id="next-btn" onclick="navigateQuestion(1)" class="px-5 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition shadow-sm">
+                Save & Next →
+              </button>
+              <button id="submit-btn" onclick="confirmSubmitTest()" class="px-5 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition shadow-sm">
+                Submit Test
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: CBT Question Palette (1 Column) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sticky top-20">
+          <h3 class="text-sm font-bold text-slate-800 border-b pb-2 mb-3 flex items-center justify-between">
+            <span>Question Palette</span>
+            <span id="palette-count" class="text-xs text-slate-500 font-normal">50 Items</span>
+          </h3>
+
+          <!-- Color Status Legend -->
+          <div class="grid grid-cols-2 gap-1.5 text-[11px] mb-3 text-slate-600">
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Answered</div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-slate-200 border inline-block"></span> Not Visited</div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-purple-500 inline-block"></span> Review</div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> Active</div>
+          </div>
+
+          <!-- Question Number Grid -->
+          <div id="palette-grid" class="grid grid-cols-5 gap-2 max-h-[360px] overflow-y-auto pr-1 custom-scroll"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3. REPORT CARD & SCORE DIAGNOSTIC SCREEN -->
+    <div id="result-screen" class="hidden space-y-6">
       
-      <div style="display:flex; justify-content:space-between; gap:10px; margin-top:16px;">
-        <button class="btn btn-outline" id="prevBtn" type="button" onclick="navigateQuestion(-1)">Previous</button>
-        <button class="btn" id="nextBtn" type="button" onclick="navigateQuestion(1)">Save & Next</button>
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <div class="flex flex-wrap justify-between items-center border-b pb-4 mb-6 gap-3">
+          <div>
+            <h2 class="text-2xl font-black text-slate-800">Official Exam Score Card</h2>
+            <p id="result-timestamp" class="text-xs text-slate-500 mt-0.5">Completed on: -</p>
+          </div>
+          <div class="flex gap-2 no-print">
+            <button onclick="window.print()" class="px-4 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg flex items-center gap-1.5">
+              <span>🖨️</span> Print / Save PDF
+            </button>
+            <button onclick="restartTest()" class="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg">
+              🔄 Retake Test
+            </button>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-center mb-6">
+          <div class="p-3 bg-slate-50 border rounded-xl">
+            <div class="text-xs text-slate-500">Total Qs</div>
+            <div id="res-total" class="text-xl font-bold text-slate-800">50</div>
+          </div>
+          <div class="p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
+            <div class="text-xs text-emerald-700">Correct (+1)</div>
+            <div id="res-correct" class="text-xl font-bold text-emerald-700">0</div>
+          </div>
+          <div class="p-3 bg-red-50 border border-red-100 rounded-xl">
+            <div class="text-xs text-red-700">Incorrect (-0.25)</div>
+            <div id="res-wrong" class="text-xl font-bold text-red-700">0</div>
+          </div>
+          <div class="p-3 bg-slate-50 border rounded-xl">
+            <div class="text-xs text-slate-500">Unattempted</div>
+            <div id="res-unattempted" class="text-xl font-bold text-slate-600">0</div>
+          </div>
+          <div class="p-3 bg-blue-50 border border-blue-100 rounded-xl">
+            <div class="text-xs text-blue-700">Net Score</div>
+            <div id="res-net-score" class="text-xl font-black text-blue-800">0.00</div>
+          </div>
+          <div class="p-3 bg-purple-50 border border-purple-100 rounded-xl">
+            <div class="text-xs text-purple-700">Accuracy %</div>
+            <div id="res-accuracy" class="text-xl font-black text-purple-800">0%</div>
+          </div>
+        </div>
+
+        <!-- Visual Breakdown & PYQ Weak-Area Analysis -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div class="bg-slate-50 p-4 rounded-xl border flex flex-col items-center">
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Score Breakdown</h4>
+            <div class="w-48 h-48">
+              <canvas id="scoreChart"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-4 rounded-xl border flex flex-col justify-between">
+            <div>
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Topic Diagnostics & Revision Alerts</h4>
+              <div id="weak-areas-list" class="space-y-2 text-xs text-slate-700 custom-scroll max-h-48 overflow-y-auto"></div>
+            </div>
+            <div class="text-[11px] text-slate-500 mt-3 pt-2 border-t">
+              💡 <em>Target high-yield topics where module accuracy is below 70%.</em>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Question Jump Palette -->
-      <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:10px;">
-        <div style="font-size:12px; font-weight:bold; color:var(--muted);">Question Navigation Palette:</div>
-        <div class="palette-grid" id="paletteGrid"></div>
+      <!-- Itemized Wrong & Verified Answer Review -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center justify-between">
+          <span>Question-by-Question Review</span>
+          <span class="text-xs text-slate-500 font-normal">Official Step-by-Step Explanations</span>
+        </h3>
+        <div id="review-questions-container" class="space-y-4"></div>
       </div>
+
     </div>
-  </div>
 
-  <!-- Result & PDF Export View -->
-  <div class="container hidden" id="resultView">
-    <div class="card" id="printableReport">
-      <div class="report-header">
-        <div class="report-title">🌾 CG Vyapam/CGPSC Sericulture Exam Scorecard</div>
-        <div class="report-meta" id="reportMetaInfo">परीक्षार्थी: -- | दिनांक एवं समय: --</div>
-        <div class="report-meta" style="font-weight:600; color:var(--primary); margin-top:2px;">विषय: CG Sericulture Field Officer Master Exam (Topics 1-12)</div>
-      </div>
-
-      <div class="stat-grid">
-        <div class="stat-box">
-          <div class="stat-val" id="resNetScore">0.00</div>
-          <div class="stat-lbl">Net Marks (-0.25 Neg)</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val" id="resAccuracy">0%</div>
-          <div class="stat-lbl">Accuracy Rate</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val badge-correct" id="resCorrect">0</div>
-          <div class="stat-lbl">Correct (+1.0)</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val badge-wrong" id="resWrong">0</div>
-          <div class="stat-lbl">Incorrect (-0.25)</div>
-        </div>
-      </div>
-
-      <div style="text-align:left; font-size:13px; color:var(--muted); margin-bottom:14px; border-top:1px solid var(--border); padding-top:8px;">
-        कुल प्रश्न: <b id="resTotal">50</b> | हल किए गए: <b id="resAttempted">0</b> | छोड़े गए: <b id="resUnattempted">0</b> | लिया गया समय: <b id="resTimeTaken">0 min</b>
-      </div>
-
-      <div style="display:flex; gap:10px; margin-top:12px;">
-        <button class="btn btn-pdf" id="exportPdfBtn" type="button" onclick="exportReportToPDF()">📄 Export Report as PDF</button>
-        <button class="btn btn-outline" type="button" onclick="toggleReview()">🔍 Show Detailed Answers</button>
-      </div>
-      <button class="btn" style="margin-top:8px;" type="button" onclick="location.reload()">🔄 Back to Home</button>
-
-      <div class="card hidden" id="reviewContainer" style="margin-top:16px; border:none; padding:0; box-shadow:none;">
-        <h3 style="border-bottom:1px solid var(--border); padding-bottom:6px;">Detailed Question Analysis</h3>
-        <div id="reviewList"></div>
-      </div>
-    </div>
-  </div>
+  </main>
 
   <script>
-    let questions = [
-      {"question":"1. भारत में उष्णकटिबंधीय तसर (कोसा) कच्चे रेशम के कुल उत्पादन में छत्तीसगढ़ राज्य का कौन सा स्थान है?","options":["प्रथम स्थान","द्वितीय स्थान (झारखंड के बाद)","तृतीय स्थान","चतुर्थ स्थान"],"answer":1},
-      {"question":"2. छत्तीसगढ़ शासन में रेशम संचालनालय (Directorate of Sericulture) किस विभाग के प्रशासनिक नियंत्रण में कार्यरत है?","options":["कृषि एवं किसान कल्याण विभाग","ग्रामोद्योग विभाग (Department of Rural Industries)","वन एवं जलवायु परिवर्तन विभाग","पंचायत एवं ग्रामीण विकास विभाग"],"answer":1},
-      {"question":"3. छत्तीसगढ़ में तसर रेशमकीट हेतु बुनियादी बीज प्रगुणन एवं प्रशिक्षण केंद्र (BSM&TC) कहाँ स्थापित है?","options":["बोइरदादर (रायगढ़)","जगदलपुर (बस्तर)","चांपा (जांजगीर-चांपा)","अंबिकापुर (सरगुजा)"],"answer":0},
-      {"question":"4. देश के कुल उष्णकटिबंधीय तसर कच्चे रेशम उत्पादन में छत्तीसगढ़ का अनुमानित योगदान कितना है?","options":["5% से 10%","20% से 25%","50% से अधिक","75%"],"answer":1},
-      {"question":"5. भारत के कुल प्राकृतिक साल-आधारित जंगली 'रेली' (Raily) कोकून उत्पादन में छत्तीसगढ़ का कितना हिस्सा है?","options":["40%","60%","75%","85% से अधिक (प्रमुखतः बस्तर)"],"answer":3},
-      {"question":"6. भारत का कौन सा राज्य कुल कच्चे रेशम तथा शहतूती (Mulberry) रेशम उत्पादन में प्रथम स्थान रखता है?","options":["कर्नाटक","आंध्र प्रदेश","असम","पश्चिम बंगाल"],"answer":0},
-      {"question":"7. केंद्रीय रेशम बोर्ड (Central Silk Board - CSB) का सांविधिक शीर्ष मुख्यालय कहाँ स्थापित है?","options":["नई दिल्ली","बेंगलुरु (कर्नाटक)","रांची (झारखंड)","मैसूरू"],"answer":1},
-      {"question":"8. एशिया की सबसे बड़ी वाणिज्यिक कोकून व्यापार मंडी कहाँ स्थित है?","options":["रामनगरम (कर्नाटक)","चांपा (छत्तीसगढ़)","भागलपुर (बिहार)","सुआलकुची (असम)"],"answer":0},
-      {"question":"9. किस भारतीय राज्य के पास सुनहरे 'मूंगा रेशम' (Muga Silk) उत्पादन का विशेष वैश्विक भौगोलिक एकाधिकार (GI Monopoly) है?","options":["असम","मणिपुर","मेघालय","छत्तीसगढ़"],"answer":0},
-      {"question":"10. छत्तीसगढ़ में सर्वाधिक जंगली साल-आधारित 'रेली' तसर कोकून किस प्रशासनिक संभाग से प्राप्त होते हैं?","options":["बस्तर संभाग","सरगुजा संभाग","बिलासपुर संभाग","रायपुर संभाग"],"answer":0},
-      {"question":"11. भारत में कुल एरी (Eri) रेशम उत्पादन का 70% से अधिक हिस्सा किस राज्य से आता है?","options":["असम","नागालैंड","अरुणाचल प्रदेश","ओडिशा"],"answer":0},
-      {"question":"12. वाणिज्यिक कच्चे रेशम उत्पादन में भारत का विश्व में कौन सा स्थान है?","options":["प्रथम","द्वितीय (चीन के बाद) एवं उपभोग में प्रथम","तृतीय","चतुर्थ"],"answer":1},
-      {"question":"13. केंद्रीय तसर रेशमकीट बीज स्टेशन (CTSSS) केंद्रीय रेशम बोर्ड द्वारा छत्तीसगढ़ में कहाँ स्थापित है?","options":["लाखा (रायगढ़)","कोण्डागांव","दंतेवाड़ा","चांपा"],"answer":0},
-      {"question":"14. उष्णकटिबंधीय तसर कीट (Antheraea mylitta) का सही कीटवैज्ञानिक गण (Order) एवं कुल (Family) क्या है?","options":["Lepidoptera : Saturniidae","Lepidoptera : Bombycidae","Coleoptera : Scarabaeidae","Diptera : Tachinidae"],"answer":0},
-      {"question":"15. शहतूती रेशमकीट (Bombyx mori) किस कीटवैज्ञानिक कुल के अंतर्गत आता है?","options":["Bombycidae","Saturniidae","Noctuidae","Sphingidae"],"answer":0},
-      {"question":"16. वयस्क तसर पतंगे (Antheraea mylitta) के नर में किस प्रकार की शृंगिका (Antenna) पाई जाती है?","options":["बायपेक्टिनेट (Bipectinate / पंखनुमा)","फिलीफॉर्म (Filiform)","सीटेट (Setaceous)","कैपिटेट (Capitate)"],"answer":0},
-      {"question":"17. शहतूती रेशमकीट (Bombyx mori) तथा उष्णकटिबंधीय तसर (Antheraea mylitta) की द्विगुणित (2n) गुणसूत्र संख्या क्रमशः है:","options":["2n=56 एवं 2n=62","2n=28 एवं 2n=56","2n=62 एवं 2n=56","2n=46 एवं 2n=48"],"answer":0},
-      {"question":"18. रेशमकीट की इल्ली (Caterpillar) में रेशम ग्रंथियाँ (Silk Glands) किसका विकासीय रूपांतरण हैं?","options":["लेबियल ग्रंथियाँ / लार ग्रंथियाँ (Labial/Salivary glands)","मैक्सिलरी ग्रंथियाँ","मैलपिघियन नलिकाएँ","जठरीय ग्रंथियाँ"],"answer":0},
-      {"question":"19. रेशमकीट (Bombyx mori) में लिंग निर्धारण का गुणसूत्रीय तंत्र क्या है?","options":["मादा ZW : नर ZZ","मादा XX : नर XY","मादा ZZ : नर ZW","अगुणित-द्विगुणित तंत्र"],"answer":0},
-      {"question":"20. रेशमकीट कैटरपिलर में पूंछ का सींग (Caudal Horn) किस उदर खंड के पृष्ठ भाग पर स्थित होता है?","options":["5वें उदर खंड पर","8वें उदर खंड पर","10वें उदर खंड पर","तीसरे वक्षीय खंड पर"],"answer":1},
-      {"question":"21. रेशमकीट के कताई अंग (Spinneret) जिसके माध्यम से तरल रेशम बाहर निकलता है, कहाँ स्थित होता है?","options":["लेबियम (निचले होंठ) पर","मैक्सिला पर","मैंडिबल पर","लेब्रम पर"],"answer":0},
-      {"question":"22. छत्तीसगढ़ में उष्णकटिबंधीय तसर कीट के दो प्राथमिक पोषक वृक्ष (Primary Host Plants) कौन से हैं?","options":["साजा / असन (Terminalia tomentosa) एवं अर्जुन (Terminalia arjuna)","शहतूत एवं अरंडी","जामुन एवं आम","धौरा एवं खैर"],"answer":0},
-      {"question":"23. अर्जुन (Terminalia arjuna) और असन (T. tomentosa) किस वानस्पतिक कुल (Family) से संबंधित हैं?","options":["Combretaceae","Moraceae","Euphorbiaceae","Dipterocarpaceae"],"answer":0},
-      {"question":"24. बस्तर की प्राकृतिक जंगली रेली तसर प्रजाति का मुख्य प्राकृतिक पोषक वृक्ष साल (Shorea robusta) किस कुल का है?","options":["Dipterocarpaceae","Combretaceae","Fabaceae","Malvaceae"],"answer":0},
-      {"question":"25. छत्तीसगढ़ की स्थानीय बोली में अर्जुन (Terminalia arjuna) वृक्ष को क्या कहा जाता है?","options":["कहुआ / कोहा (Kahua/Koha)","साजा (Saja)","धौड़ा (Dhaura)","साल (Sal)"],"answer":0},
-      {"question":"26. एरी रेशमकीट (Samia ricini) का मुख्य पोषक पौधा कौन सा है जिसकी खेती आदिवासी कृषक करते हैं?","options":["अरंडी (Ricinus communis, Euphorbiaceae)","शहतूत","असन","सोम"],"answer":0},
-      {"question":"27. शहतूत (Morus alba) का खाने योग्य फल वानस्पतिक रूप से क्या कहलाता है?","options":["सोरोसिस (Sorosis)","ड्रूप (Drupe)","बेरी (Berry)","हेस्पेरिडियम"],"answer":0},
-      {"question":"28. सीएसआरटीआई मैसूरू द्वारा विकसित सिंचित क्षेत्रों हेतु उच्च उपज देने वाली लोकप्रिय शहतूत किस्म कौन सी है?","options":["विक्टरी-1 (Victory-1 / V1)","कनवा-2 (K2)","एस-36","एआर-12"],"answer":0},
-      {"question":"29. छत्तीसगढ़ में बाह्य तसर कीटपालन हेतु आदर्श तापमान एवं सापेक्षिक आर्द्रता (RH) क्या है?","options":["25°C से 32°C एवं 70% से 85% RH","15°C से 20°C एवं 50% RH","38°C से 42°C एवं 40% RH","20°C से 25°C एवं 95% RH"],"answer":0},
-      {"question":"30. रेशम पोषक वृक्षों एवं कीटपालन हेतु उपयुक्त मृदा का आदर्श pH मान कितना होना चाहिए?","options":["6.2 से 6.8 (हल्का अम्लीय से उदासीन)","4.5 से 5.2","7.8 से 8.5","8.5 से अधिक"],"answer":0},
-      {"question":"31. छत्तीसगढ़ के कुल रेशम उत्पादन में किस रेशम किस्म का अंश 90% से भी अधिक है?","options":["उष्णकटिबंधीय तसर (कोसा) रेशम","शहतूती रेशम","एरी रेशम","मूंगा रेशम"],"answer":0},
-      {"question":"32. एरी रेशम को 'अहिंसा रेशम' (Ahimsa Silk) क्यों कहा जाता है?","options":["क्योंकि इसमें कताई से पूर्व पतंगा प्यूपा को मारे बिना प्राकृतिक रूप से बाहर निकल जाता है","क्योंकि यह शाकाहारी पौधे से रसायनों द्वारा बनता है","क्योंकि इसकी कताई केवल हाथ से होती है","यह गैर-पशु जनित रेशा है"],"answer":0},
-      {"question":"33. छत्तीसगढ़ का कौन सा शहर 'कोसा रेशम राजधानी' (Kosa Silk Capital / Silk City) के रूप में विख्यात है?","options":["चांपा (जांजगीर-चांपा)","बिलासपुर","रायगढ़","जगदलपुर"],"answer":0},
-      {"question":"34. छत्तीसगढ़ में कोसा बुनाई एवं कताई में पारंपरिक रूप से कौन सा समुदाय संलग्न है?","options":["देवांगन (कोष्ठा) समुदाय","गोंड समुदाय","हलबा समुदाय","कमर समुदाय"],"answer":0},
-      {"question":"35. बस्तर और कोण्डागांव में कोसा रंगाई हेतु 'आल' वृक्ष (Morinda citrifolia) के किस भाग से प्राकृतिक रंग निकाला जाता है?","options":["जड़ों (Roots) से","छाल से","पत्तियों से","बीजों से"],"answer":0},
-      {"question":"36. वन अधिकार अधिनियम (FRA 2006) के तहत वनवासियों द्वारा जंगली तसर कोकून संग्रहण किस रूप में वर्गीकृत है?","options":["लघु वनोपज (Minor Forest Produce - MFP)","आरक्षित वन संपदा","वाणिज्यिक काष्ठ","प्रतिबंधित उत्पाद"],"answer":0},
-      {"question":"37. उष्णकटिबंधीय तसर कोकून का औसत रेंडिटा (Renditta - 1 किग्रा रेशम धागे हेतु आवश्यक कोकून का वजन) कितना होता है?","options":["12 से 14 किग्रा (लगभग 1,000-1,200 कोकून)","5.5 से 6.5 किग्रा","20 से 25 किग्रा","2 से 3 किग्रा"],"answer":0},
-      {"question":"38. छत्तीसगढ़ की पारंपरिक कोकून व्यापार माप में एक 'कहान' (Kahan), 'पोन' (Pon) और 'गंडा' (Ganda) का मान है:","options":["कहान = 1280, पोन = 80, गंडा = 4 कोकून","कहान = 1000, पोन = 100, गंडा = 10 कोकून","कहान = 640, पोन = 40, गंडा = 2 कोकून","कहान = 1600, पोन = 120, गंडा = 6 कोकून"],"answer":0},
-      {"question":"39. रेशम तंतु (Silk Filament) के आंतरिक कोर का निर्माण करने वाला मुख्य संरचनात्मक रेशेदार प्रोटीन कौन सा है?","options":["फाइब्रोइन (Fibroin ~75-80%)","सेरिसिन (Sericin)","केराटिन","कोलेजन"],"answer":0},
-      {"question":"40. तसर रेशम का विशिष्ट भूरा-स्वर्णिम रंग (Brownish-Golden Color) किसके संचय के कारण होता है?","options":["पोषक पत्तियों से अवशोषित टैनिन पिगमेंट (Tannin pigments)","क्लोरोफिल","मेलेनिन","आयरन ऑक्साइड"],"answer":0},
-      {"question":"41. शुद्ध कच्चे रेशम (Raw Silk) के लिए अंतरराष्ट्रीय मानक परीक्षण अनुसार आधिकारिक नमी पुनर्प्राप्ति (Moisture Regain) प्रतिशत क्या है?","options":["11.0%","8.5%","13.5%","15.0%"],"answer":0},
-      {"question":"42. रेशम फाइब्रोइन प्रोटीन की प्राथमिक संरचना में किन तीन प्रमुख अमीनो अम्लों की प्रधानता होती है?","options":["ग्लाइसीन, एलानिन और सेरीन (Glycine, Alanine, Serine)","लाइसिन, वेलीन और ट्रिप्टोफैन","मेथियोनीन, प्रोलिन और ल्यूसीन","ग्लूटामिक एसिड और एस्पार्टिक एसिड"],"answer":0},
-      {"question":"43. तसर रेशमकीट (Antheraea mylitta) का जीवन चक्र कीटविज्ञान के अनुसार किस प्रकार का कायांतरण दर्शाता है?","options":["पूर्ण कायांतरण (Holometabolous: अंडा → लार्वा → प्यूपा → वयस्क)","अपूर्ण कायांतरण (Hemimetabolous)","अपूरणीय कायांतरण (Ametabolous)","अप्रत्यक्ष कायांतरण"],"answer":0},
-      {"question":"44. रेशमकीट लार्वा में त्वचा निर्मोचन (Ecdysis / Molting) की प्रक्रिया को प्रेरित करने वाला हार्मोन कौन सा है?","options":["एक्डाइसोन (Ecdysone)","जुवेनाइल हार्मोन (JH)","डायपॉज हार्मोन (DH)","फेरोमोन (Bombykol)"],"answer":0},
-      {"question":"45. रेशम ग्रंथि का मध्य भाग (Middle Silk Gland - MSG) किस गोंदनुमा सुरक्षात्मक प्रोटीन का संश्लेषण करता है?","options":["सेरिसिन (Sericin)","फाइब्रोइन (Fibroin)","एल्ब्यूमिन","ग्लोब्युलिन"],"answer":0},
-      {"question":"46. बस्तर के सघन साल वनों में पाई जाने वाली प्रसिद्ध स्थानिक जंगली तसर इको-रेस कौन सी है?","options":["रेली (Raily)","डाबा (Daba)","मोडाल (Modal)","सुकिंदा (Sukinda)"],"answer":0},
-      {"question":"47. छत्तीसगढ़ के कृषकों द्वारा ब्लॉक वृक्षारोपण में सबसे व्यापक रूप से पाली जाने वाली व्यावसायिक तसर रेस कौन सी है?","options":["डाबा (Daba - द्विफसली/त्रिफसली)","रेली (Raily)","सुआलकुची","भंडारा"],"answer":0},
-      {"question":"48. रेशमकीट में होने वाला घातक 'पेब्रिन' (Pebrine) रोग किस प्रोटोजोआ परजीवी के कारण होता है?","options":["नोसेमा बॉम्बिसिस (Nosema bombycis)","ब्युवेरिया बेसियाना (Beauveria bassiana)","न्यूक्लियर पॉलीहेड्रोसिस वायरस (BmNPV)","बैसिलस थुरिंजिएंसिस (Bt)"],"answer":0},
-      {"question":"49. पेब्रिन रोग के पूर्ण उन्मूलन हेतु लुई पाश्चर द्वारा कौन सी ऐतिहासिक नैदानिक विधि विकसित की गई थी?","options":["मदर मोथ माइक्रोस्कोपिक परीक्षण (Mother Moth Examination)","हॉट वाटर स्टिफलिंग","फॉर्मेलिन स्प्रे तकनीक","यूजी ट्रैप"],"answer":0},
-      {"question":"50. केंद्रीय तसर अनुसंधान एवं प्रशिक्षण संस्थान (CTR&TI) कहाँ स्थित है?","options":["रांची (झारखंड)","मैसूरू (कर्नाटक)","बेंगलुरु","जोरहाट (असम)"],"answer":0}
+    // Strict JSON Object Structure
+    const QUESTION_DATABASE = [
+      {
+        "id": 1,
+        "subject": "Agronomy",
+        "question": "Which of the following is considered the ideal test weight (weight of 1000 grains) of Basmati rice ($Oryza\\ sativa$)?",
+        "options": ["21 g", "25 g", "40 g", "15 g"],
+        "answer": 0,
+        "explanation": "The test weight (weight of 1000 grains) of Basmati rice is approximately $21\\text{ g}$, whereas standard non-basmati rice averages $25\\text{ g}$ and common wheat averages $40\\text{ g}$.",
+        "feedback": [
+          "A — Correct. Basmati test weight is 21 g.",
+          "B — Incorrect. 25 g is typical for common indica rice.",
+          "C — Incorrect. 40 g is typical for Triticum aestivum (wheat).",
+          "D — Incorrect. 15 g is too low for rice cultivars."
+        ]
+      },
+      {
+        "id": 2,
+        "subject": "Soil Science",
+        "question": "What is the recommended balanced fertilizer application ratio ($N:P_2O_5:K_2O$) for cereal crops under Indian soil conditions?",
+        "options": ["2:1:1", "4:2:1", "1:2:2", "3:1:2"],
+        "answer": 1,
+        "explanation": "The standard general recommendation for cereals in India is $4:2:1$ ($N:P_2O_5:K_2O$), whereas pulses generally require $1:2:1$ or $1:2:2$.",
+        "feedback": [
+          "A — Incorrect. 2:1:1 is typical for intensive green fodder.",
+          "B — Correct. 4:2:1 is the benchmark standard for cereals.",
+          "C — Incorrect. High P & K ratios are allocated to legumes.",
+          "D — Incorrect. Non-standard ratio."
+        ]
+      },
+      {
+        "id": 3,
+        "subject": "Entomology",
+        "question": "Which insect vector is responsible for transmitting Potato Leafroll Virus ($PLRV$)?",
+        "options": ["Amrasca biguttula", "Myzus persicae", "Bemisia tabaci", "Thrips palmi"],
+        "answer": 1,
+        "explanation": "The green peach aphid (*Myzus persicae*) is the principal vector for transmitting Potato Leafroll Virus (PLRV) in a persistent, circulative manner.",
+        "feedback": [
+          "A — Incorrect. Amrasca biguttula is the leafhopper causing hopper burn.",
+          "B — Correct. Myzus persicae transmits PLRV effectively.",
+          "C — Incorrect. Bemisia tabaci transmits whitefly-borne Gemini viruses like PALCV.",
+          "D — Incorrect. Thrips palmi is a vector for tospoviruses."
+        ]
+      },
+      {
+        "id": 4,
+        "subject": "Weed Science",
+        "question": "Which of the following post-emergence herbicides is widely recommended to control Isoproturon-resistant *Phalaris minor* in wheat?",
+        "options": ["Sulfosulfuron", "Atrazine", "Pendimethalin", "2,4-D"],
+        "answer": 0,
+        "explanation": "Sulfosulfuron ($25\\text{ g a.i./ha}$) and Clodinafop-propargyl ($60\\text{ g a.i./ha}$) are recommended post-emergence herbicides for controlling resistant *Phalaris minor* at 30-35 days after sowing.",
+        "feedback": [
+          "A — Correct. Sulfosulfuron effectively controls Phalaris minor.",
+          "B — Incorrect. Atrazine is selective for maize and sugarcane.",
+          "C — Incorrect. Pendimethalin is applied pre-emergence.",
+          "D — Incorrect. 2,4-D targets broadleaved weeds."
+        ]
+      },
+      {
+        "id": 5,
+        "subject": "Crop Physiology",
+        "question": "Which enzyme catalyzes the primary initial carbon fixation reaction in $C_4$ plants such as Maize and Sugarcane?",
+        "options": ["RuBisCO", "PEP Carboxylase", "Carbonic Anhydrase", "Nitrate Reductase"],
+        "answer": 1,
+        "explanation": "In $C_4$ plants, initial $CO_2$ fixation occurs in the mesophyll cells catalyzed by Phosphoenolpyruvate (PEP) Carboxylase, generating oxaloacetate ($4C$).",
+        "feedback": [
+          "A — Incorrect. RuBisCO acts inside the bundle sheath cells.",
+          "B — Correct. PEP Carboxylase carries out primary carboxylation in C4 mesophyll.",
+          "C — Incorrect. Catalyzes hydration of CO2.",
+          "D — Incorrect. Participates in nitrogen reduction."
+        ]
+      }
     ];
 
-    let currentIndex = 0, userAnswers = {}, timerInterval = null, timeLeft = 30 * 60, initialTime = 30 * 60, candidateName = "Vishal Tripathi", examStartTime = null;
+    // State Variables
+    let currentQuestions = [];
+    let currentIdx = 0;
+    let userAnswers = {};
+    let markedReview = {};
+    let testMode = 'exam';
+    let timerInterval = null;
+    let timeRemaining = 0;
+    let totalDuration = 0;
+    let chartInstance = null;
 
-    function formatDateTime(d) {
-      const pad = (n) => n < 10 ? '0' + n : n;
-      return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    const LS_STATE_KEY = "AGRI_EXAM_ACTIVE_STATE";
+
+    window.addEventListener('DOMContentLoaded', () => {
+      populateSubjectDropdown();
+      checkForSavedState();
+    });
+
+    function populateSubjectDropdown() {
+      const select = document.getElementById('subject-filter');
+      const uniqueSubjects = [...new Set(QUESTION_DATABASE.map(q => q.subject))];
+      uniqueSubjects.forEach(sub => {
+        const opt = document.createElement('option');
+        opt.value = sub;
+        opt.textContent = sub;
+        select.appendChild(opt);
+      });
     }
 
-    function startTest() {
-      candidateName = document.getElementById('candidateNameInput').value.trim() || "Vishal Tripathi";
-      currentIndex = 0;
-      userAnswers = {};
-      timeLeft = initialTime;
-      examStartTime = new Date();
+    function checkForSavedState() {
+      const saved = localStorage.getItem(LS_STATE_KEY);
+      if (saved) {
+        document.getElementById('resume-banner').classList.remove('hidden');
+      }
+    }
 
-      document.getElementById('homeView').classList.add('hidden');
-      document.getElementById('resultView').classList.add('hidden');
-      document.getElementById('testView').classList.remove('hidden');
-      document.getElementById('timerDisplay').classList.remove('hidden');
+    function startTest(resuming = false) {
+      if (!resuming) {
+        const selectedSub = document.getElementById('subject-filter').value;
+        const modeEl = document.querySelector('input[name="mode"]:checked');
+        testMode = modeEl ? modeEl.value : 'exam';
+
+        if (selectedSub === 'ALL') {
+          currentQuestions = [...QUESTION_DATABASE];
+        } else {
+          currentQuestions = QUESTION_DATABASE.filter(q => q.subject === selectedSub);
+        }
+
+        const qCount = currentQuestions.length;
+        totalDuration = Math.max(10, Math.round((qCount / 50) * 30 * 60));
+        timeRemaining = totalDuration;
+        userAnswers = {};
+        markedReview = {};
+        currentIdx = 0;
+      }
+
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('result-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.remove('hidden');
+      document.getElementById('exit-btn').classList.remove('hidden');
+
+      if (testMode === 'exam') {
+        document.getElementById('timer-box').classList.remove('hidden');
+        startTimer();
+      } else {
+        document.getElementById('timer-box').classList.add('hidden');
+      }
 
       renderPalette();
       renderQuestion();
+      saveStateToLocalStorage();
+    }
 
-      if (timerInterval) clearInterval(timerInterval);
+    function resumeTest() {
+      const saved = localStorage.getItem(LS_STATE_KEY);
+      if (!saved) return;
+      try {
+        const state = JSON.parse(saved);
+        currentQuestions = state.currentQuestions;
+        currentIdx = state.currentIdx || 0;
+        userAnswers = state.userAnswers || {};
+        markedReview = state.markedReview || {};
+        testMode = state.testMode || 'exam';
+        timeRemaining = state.timeRemaining || 1800;
+        totalDuration = state.totalDuration || 1800;
+        startTest(true);
+      } catch (e) {
+        console.error("State restore failed:", e);
+        startTest(false);
+      }
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      updateTimerDisplay();
       timerInterval = setInterval(() => {
-        timeLeft--;
-        const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-        document.getElementById('timerDisplay').innerText = `⏱️ ${m}:${s < 10 ? '0' : ''}${s}`;
-        if (timeLeft <= 0) { clearInterval(timerInterval); finishTest(); }
+        timeRemaining--;
+        updateTimerDisplay();
+        saveStateToLocalStorage();
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          alert("⏱️ Time expired! Exam auto-submitting now.");
+          submitTest();
+        }
       }, 1000);
     }
 
-    function renderPalette() {
-      const grid = document.getElementById('paletteGrid');
-      grid.innerHTML = '';
-      questions.forEach((_, idx) => {
-        const btn = document.createElement('div');
-        btn.id = `palette-btn-${idx}`;
-        btn.className = 'p-btn' + (idx === currentIndex ? ' active' : '') + (userAnswers[idx] !== undefined ? ' attempted' : '');
-        btn.innerText = idx + 1;
-        btn.onclick = () => { currentIndex = idx; renderQuestion(); };
-        grid.appendChild(btn);
-      });
+    function updateTimerDisplay() {
+      const min = Math.floor(timeRemaining / 60);
+      const sec = timeRemaining % 60;
+      const formatted = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+      const disp = document.getElementById('timer-display');
+      disp.textContent = formatted;
+      if (timeRemaining < 300) {
+        disp.classList.add('text-red-400');
+      } else {
+        disp.classList.remove('text-red-400');
+      }
     }
 
     function renderQuestion() {
-      const q = questions[currentIndex];
-      document.getElementById('qIndex').innerText = `Question ${currentIndex + 1} of ${questions.length}`;
-      document.getElementById('qText').innerText = q.question;
-      const container = document.getElementById('optionsContainer');
-      container.innerHTML = '';
+      const q = currentQuestions[currentIdx];
+      if (!q) return;
 
-      q.options.forEach((opt, idx) => {
-        const div = document.createElement('div');
-        div.className = 'option' + (userAnswers[currentIndex] === idx ? ' selected' : '');
-        div.innerText = `${String.fromCharCode(65 + idx)}. ${opt}`;
-        div.onclick = () => {
-          userAnswers[currentIndex] = idx;
-          renderQuestion();
-          renderPalette();
-        };
-        container.appendChild(div);
+      document.getElementById('display-q-number').textContent = `Question ${currentIdx + 1} of ${currentQuestions.length}`;
+      document.getElementById('display-q-subject').textContent = q.subject || "General";
+      document.getElementById('question-text').innerHTML = `${currentIdx + 1}. ${q.question}`;
+
+      const revBtn = document.getElementById('mark-review-btn');
+      if (markedReview[currentIdx]) {
+        revBtn.classList.add('bg-purple-600', 'text-white');
+        revBtn.classList.remove('text-purple-700', 'hover:bg-purple-50');
+      } else {
+        revBtn.classList.remove('bg-purple-600', 'text-white');
+        revBtn.classList.add('text-purple-700', 'hover:bg-purple-50');
+      }
+
+      document.getElementById('prev-btn').disabled = (currentIdx === 0);
+
+      const optionsContainer = document.getElementById('options-container');
+      optionsContainer.innerHTML = '';
+
+      const letters = ['A', 'B', 'C', 'D'];
+      const selected = userAnswers[currentIdx];
+
+      q.options.forEach((optText, oIdx) => {
+        const isSelected = (selected === oIdx);
+        const btn = document.createElement('div');
+        btn.className = `p-3.5 border rounded-xl flex items-center justify-between cursor-pointer transition select-none ${
+          isSelected 
+            ? 'border-emerald-600 bg-emerald-50/80 font-semibold text-emerald-900 shadow-sm' 
+            : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800'
+        }`;
+
+        btn.onclick = () => selectOption(oIdx);
+
+        btn.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
+              isSelected ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'
+            }">${letters[oIdx]}</span>
+            <span class="text-sm">${optText}</span>
+          </div>
+          <div class="w-4 h-4 rounded-full border flex items-center justify-center ${
+            isSelected ? 'border-emerald-600 bg-emerald-600' : 'border-slate-300'
+          }">
+            ${isSelected ? '<span class="w-1.5 h-1.5 rounded-full bg-white"></span>' : ''}
+          </div>
+        `;
+        optionsContainer.appendChild(btn);
       });
 
-      document.getElementById('prevBtn').disabled = (currentIndex === 0);
-      document.getElementById('nextBtn').innerText = (currentIndex === questions.length - 1) ? 'Review & Submit' : 'Save & Next';
+      const feedbackBox = document.getElementById('practice-feedback-box');
+      if (testMode === 'practice' && selected !== undefined) {
+        feedbackBox.classList.remove('hidden');
+        const isCorrect = (selected === q.answer);
+        feedbackBox.className = `mt-6 p-4 rounded-xl border text-xs ${
+          isCorrect ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'
+        }`;
+        document.getElementById('feedback-badge').innerHTML = isCorrect 
+          ? '✅ Correct Answer!' 
+          : `❌ Incorrect. Correct Option is: (${letters[q.answer]}) ${q.options[q.answer]}`;
+
+        let fbHtml = `<p class="mt-1 font-medium"><strong>Explanation:</strong> ${q.explanation}</p>`;
+        if (q.feedback && q.feedback.length) {
+          fbHtml += `<div class="mt-2 pt-2 border-t border-slate-200/60 font-mono space-y-1">`;
+          q.feedback.forEach(item => { fbHtml += `<div>• ${item}</div>`; });
+          fbHtml += `</div>`;
+        }
+        document.getElementById('feedback-explanation').innerHTML = fbHtml;
+      } else {
+        feedbackBox.classList.add('hidden');
+      }
+
       renderPalette();
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+      }
     }
 
-    function navigateQuestion(step) {
-      if (step === 1 && currentIndex === questions.length - 1) { confirmSubmit(); return; }
-      currentIndex = Math.max(0, Math.min(questions.length - 1, currentIndex + step));
+    function selectOption(oIdx) {
+      userAnswers[currentIdx] = oIdx;
+      saveStateToLocalStorage();
       renderQuestion();
     }
 
-    function confirmSubmit() {
-      const answered = Object.keys(userAnswers).length;
-      if (confirm(`क्या आप टेस्ट सबमिट करना चाहते हैं?\n\nकुल हल किए: ${answered}\nछोड़े गए प्रश्न: ${questions.length - answered}`)) {
-        finishTest();
+    function clearCurrentAnswer() {
+      delete userAnswers[currentIdx];
+      saveStateToLocalStorage();
+      renderQuestion();
+    }
+
+    function toggleMarkForReview() {
+      markedReview[currentIdx] = !markedReview[currentIdx];
+      saveStateToLocalStorage();
+      renderQuestion();
+    }
+
+    function navigateQuestion(offset) {
+      const newIdx = currentIdx + offset;
+      if (newIdx >= 0 && newIdx < currentQuestions.length) {
+        currentIdx = newIdx;
+        saveStateToLocalStorage();
+        renderQuestion();
       }
     }
 
-    function finishTest() {
+    function jumpToQuestion(idx) {
+      if (idx >= 0 && idx < currentQuestions.length) {
+        currentIdx = idx;
+        saveStateToLocalStorage();
+        renderQuestion();
+      }
+    }
+
+    function renderPalette() {
+      const palette = document.getElementById('palette-grid');
+      palette.innerHTML = '';
+      document.getElementById('palette-count').textContent = `${currentQuestions.length} Questions`;
+
+      currentQuestions.forEach((_, idx) => {
+        const isAnswered = (userAnswers[idx] !== undefined);
+        const isMarked = !!markedReview[idx];
+        const isActive = (idx === currentIdx);
+
+        let bgClass = "bg-slate-100 text-slate-700 border-slate-200";
+        if (isActive) {
+          bgClass = "ring-2 ring-blue-500 bg-blue-600 text-white font-bold";
+        } else if (isMarked) {
+          bgClass = "bg-purple-600 text-white font-semibold";
+        } else if (isAnswered) {
+          bgClass = "bg-emerald-600 text-white font-semibold";
+        }
+
+        const btn = document.createElement('button');
+        btn.className = `h-9 w-full rounded-lg text-xs flex items-center justify-center border transition ${bgClass}`;
+        btn.textContent = idx + 1;
+        btn.onclick = () => jumpToQuestion(idx);
+        palette.appendChild(btn);
+      });
+    }
+
+    function confirmExit() {
+      if (confirm("Exit test? Your session is saved in this browser.")) {
+        clearInterval(timerInterval);
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('timer-box').classList.add('hidden');
+        document.getElementById('exit-btn').classList.add('hidden');
+        document.getElementById('start-screen').classList.remove('hidden');
+        checkForSavedState();
+      }
+    }
+
+    function confirmSubmitTest() {
+      const attempted = Object.keys(userAnswers).length;
+      const total = currentQuestions.length;
+      if (confirm(`Submit Test?\nAttempted: ${attempted} / ${total}\nUnattempted: ${total - attempted}`)) {
+        submitTest();
+      }
+    }
+
+    function submitTest() {
       clearInterval(timerInterval);
-      const examEndTime = new Date();
-      const timeSpentMinutes = Math.max(1, Math.round((initialTime - timeLeft) / 60));
+      localStorage.removeItem(LS_STATE_KEY);
 
-      let correct = 0, wrong = 0, unattempted = 0;
-      questions.forEach((q, idx) => {
-        if (userAnswers[idx] === undefined) unattempted++;
-        else if (userAnswers[idx] === q.answer) correct++;
-        else wrong++;
+      let correct = 0;
+      let wrong = 0;
+      const subjectStats = {};
+
+      currentQuestions.forEach((q, idx) => {
+        const sub = q.subject || "General";
+        if (!subjectStats[sub]) subjectStats[sub] = { total: 0, correct: 0, wrong: 0 };
+        subjectStats[sub].total++;
+
+        const ans = userAnswers[idx];
+        if (ans !== undefined) {
+          if (ans === q.answer) {
+            correct++;
+            subjectStats[sub].correct++;
+          } else {
+            wrong++;
+            subjectStats[sub].wrong++;
+          }
+        }
       });
 
-      const netScore = (correct * 1.0) - (wrong * 0.25);
-      const attempted = correct + wrong;
-      const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
+      const total = currentQuestions.length;
+      const unattempted = total - (correct + wrong);
+      const grossScore = correct * 1;
+      const negativeMarking = wrong * 0.25;
+      const netScore = Math.max(0, grossScore - negativeMarking).toFixed(2);
+      const accuracy = (correct + wrong) > 0 ? Math.round((correct / (correct + wrong)) * 100) : 0;
 
-      document.getElementById('testView').classList.add('hidden');
-      document.getElementById('timerDisplay').classList.add('hidden');
-      document.getElementById('resultView').classList.remove('hidden');
+      document.getElementById('result-timestamp').textContent = `Completed on: ${new Date().toLocaleString()}`;
+      document.getElementById('res-total').textContent = total;
+      document.getElementById('res-correct').textContent = correct;
+      document.getElementById('res-wrong').textContent = wrong;
+      document.getElementById('res-unattempted').textContent = unattempted;
+      document.getElementById('res-net-score').textContent = netScore;
+      document.getElementById('res-accuracy').textContent = `${accuracy}%`;
 
-      document.getElementById('reportMetaInfo').innerText = `परीक्षार्थी: ${candidateName} | दिनांक: ${formatDateTime(examStartTime)} से ${formatDateTime(examEndTime)}`;
-      document.getElementById('resNetScore').innerText = netScore.toFixed(2);
-      document.getElementById('resAccuracy').innerText = `${accuracy}%`;
-      document.getElementById('resCorrect').innerText = correct;
-      document.getElementById('resWrong').innerText = wrong;
-      document.getElementById('resTotal').innerText = questions.length;
-      document.getElementById('resAttempted').innerText = attempted;
-      document.getElementById('resUnattempted').innerText = unattempted;
-      document.getElementById('resTimeTaken').innerText = `${timeSpentMinutes} मिनट`;
-
-      const reviewList = document.getElementById('reviewList');
-      reviewList.innerHTML = '';
-      questions.forEach((q, idx) => {
-        const userChoice = userAnswers[idx], isCorrect = userChoice === q.answer, isBlank = userChoice === undefined;
-        const item = document.createElement('div');
-        item.className = 'review-item';
-        item.innerHTML = `
-          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">${q.question}</div>
-          <div style="font-size:12.5px; margin-bottom:2px;">आपका उत्तर: <b class="${isBlank ? 'badge-skip' : (isCorrect ? 'badge-correct' : 'badge-wrong')}">${isBlank ? 'छोड़ा गया' : `${String.fromCharCode(65 + userChoice)}. ${q.options[userChoice]}`}</b></div>
-          <div style="font-size:12.5px; color:var(--success);">सही उत्तर: <b>${String.fromCharCode(65 + q.answer)}. ${q.options[q.answer]}</b></div>
+      const weakList = document.getElementById('weak-areas-list');
+      weakList.innerHTML = '';
+      for (const [sub, st] of Object.entries(subjectStats)) {
+        const attemptedSub = st.correct + st.wrong;
+        const subAcc = attemptedSub > 0 ? Math.round((st.correct / attemptedSub) * 100) : 0;
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200";
+        div.innerHTML = `
+          <div>
+            <div class="font-bold text-slate-800">${sub}</div>
+            <div class="text-[10px] text-slate-500">${st.correct}/${st.total} Correct (${st.wrong} negative)</div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-xs font-bold ${
+            subAcc >= 70 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+          }">${subAcc}%</span>
         `;
-        reviewList.appendChild(item);
+        weakList.appendChild(div);
+      }
+
+      const reviewContainer = document.getElementById('review-questions-container');
+      reviewContainer.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+
+      currentQuestions.forEach((q, idx) => {
+        const userChoice = userAnswers[idx];
+        const isCorrect = (userChoice === q.answer);
+        const isSkipped = (userChoice === undefined);
+
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-xl border ${
+          isSkipped ? 'border-slate-200 bg-slate-50' : (isCorrect ? 'border-emerald-200 bg-emerald-50/40' : 'border-red-200 bg-red-50/40')
+        }`;
+
+        let statusBadge = isSkipped 
+          ? '<span class="text-[11px] font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-700">Unattempted (0.00)</span>'
+          : (isCorrect 
+              ? '<span class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-200 text-emerald-800">+1.00 Mark</span>'
+              : '<span class="text-[11px] font-bold px-2 py-0.5 rounded bg-red-200 text-red-800">-0.25 Mark</span>');
+
+        let optionsHtml = '';
+        q.options.forEach((opt, oIdx) => {
+          let optStyle = "text-slate-600";
+          let tag = '';
+          if (oIdx === q.answer) {
+            optStyle = "text-emerald-700 font-bold";
+            tag = ' ✔ (Correct Answer)';
+          }
+          if (userChoice === oIdx && !isCorrect) {
+            optStyle = "text-red-600 font-bold line-through";
+            tag = ' ✖ (Your Choice)';
+          } else if (userChoice === oIdx && isCorrect) {
+            tag = ' 🎯 (Your Choice)';
+          }
+          optionsHtml += `<div class="text-xs ${optStyle} py-0.5">(${letters[oIdx]}) ${opt}${tag}</div>`;
+        });
+
+        card.innerHTML = `
+          <div class="flex justify-between items-start gap-2 mb-2">
+            <span class="text-xs font-bold text-slate-500">Q${idx + 1} • ${q.subject}</span>
+            ${statusBadge}
+          </div>
+          <div class="text-sm font-semibold text-slate-800 mb-2">${q.question}</div>
+          <div class="space-y-1 mb-3 pl-2 border-l-2 border-slate-200">
+            ${optionsHtml}
+          </div>
+          <div class="text-xs text-slate-700 bg-white/80 p-3 rounded-lg border border-slate-200">
+            <strong>Detailed Explanation:</strong> ${q.explanation}
+          </div>
+        `;
+        reviewContainer.appendChild(card);
+      });
+
+      renderChart(correct, wrong, unattempted);
+
+      document.getElementById('quiz-screen').classList.add('hidden');
+      document.getElementById('timer-box').classList.add('hidden');
+      document.getElementById('exit-btn').classList.add('hidden');
+      document.getElementById('result-screen').classList.remove('hidden');
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+      }
+    }
+
+    function renderChart(c, w, u) {
+      const ctx = document.getElementById('scoreChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Correct', 'Incorrect', 'Unattempted'],
+          datasets: [{
+            data: [c, w, u],
+            backgroundColor: ['#10b981', '#ef4444', '#cbd5e1']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+          }
+        }
       });
     }
 
-    function toggleReview() {
-      document.getElementById('reviewContainer').classList.toggle('hidden');
+    function restartTest() {
+      document.getElementById('result-screen').classList.add('hidden');
+      document.getElementById('start-screen').classList.remove('hidden');
+      document.getElementById('resume-banner').classList.add('hidden');
     }
 
-    async function exportReportToPDF() {
-      const btn = document.getElementById('exportPdfBtn'), originalText = btn.innerText;
-      btn.innerText = "⏳ Generating PDF...";
-      btn.disabled = true;
-
-      const reviewBox = document.getElementById('reviewContainer');
-      const wasHidden = reviewBox.classList.contains('hidden');
-      reviewBox.classList.remove('hidden');
-
-      try {
-        const reportElement = document.getElementById('printableReport');
-        const canvas = await html2canvas(reportElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-        const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth(), pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = pdfWidth - 20, imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight, position = 10;
-
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= (pdfHeight - 20);
-
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight + 10;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-          heightLeft -= (pdfHeight - 20);
-        }
-        const safeDate = new Date().toISOString().slice(0, 10);
-        pdf.save(`CG_Sericulture_Exam_Report_${candidateName.replace(/\s+/g, '_')}_${safeDate}.pdf`);
-      } catch (err) {
-        alert("PDF तैयार करने में त्रुटि: " + err.message);
-      } finally {
-        if (wasHidden) reviewBox.classList.add('hidden');
-        btn.innerText = originalText;
-        btn.disabled = false;
-      }
-    }
-
-    function loadCustomQuestions() {
-      const val = document.getElementById('jsonInput').value.trim();
-      if (!val) { alert("कृपया बॉक्स में JSON कोड पेस्ट करें!"); return; }
-      try {
-        const clean = val.replace(/```json/gi, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(clean);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          questions = parsed;
-          initialTime = Math.max(15, Math.round(questions.length * 0.6)) * 60;
-          alert(`कुल ${questions.length} प्रश्न सफलतापूर्वक लोड हुए!`);
-          startTest();
-        } else {
-          alert("मान्य JSON Array नहीं मिला।");
-        }
-      } catch (e) {
-        alert("JSON पार्सिंग त्रुटि: " + e.message);
-      }
+    function saveStateToLocalStorage() {
+      const state = {
+        currentQuestions,
+        currentIdx,
+        userAnswers,
+        markedReview,
+        testMode,
+        timeRemaining,
+        totalDuration
+      };
+      localStorage.setItem(LS_STATE_KEY, JSON.stringify(state));
     }
   </script>
 </body>
