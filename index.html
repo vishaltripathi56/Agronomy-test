@@ -33,7 +33,7 @@
     .btn-red { background: var(--danger); }
     .btn-pdf { background: #d32f2f; color: #fff; }
     .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-    textarea, input, select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; margin-bottom: 8px; background: #fff; }
+    textarea, input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; margin-bottom: 8px; background: #fff; }
     textarea { font-family: monospace; resize: vertical; }
     .hidden { display: none !important; }
     .timer { font-size: 16px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.25); padding: 4px 12px; border-radius: 20px; letter-spacing: 0.5px; }
@@ -49,8 +49,6 @@
     .badge-wrong { color: var(--danger); font-weight: 600; }
     .badge-skip { color: var(--warning); font-weight: 600; }
     #status { font-weight: 700; font-size: 13px; margin-top: 8px; text-align: center; }
-    
-    /* Printable Report Styling */
     #printableReport { background: #ffffff; padding: 16px; border-radius: 8px; }
     .report-header { border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 12px; }
     .report-title { font-size: 18px; font-weight: bold; color: var(--primary); margin: 0; }
@@ -67,12 +65,12 @@
   <div class="container" id="homeView">
     <div class="card" style="border-left: 4px solid var(--success);">
       <h3 style="color:var(--success); margin-bottom:4px;">🎯 CG Sericulture Field Officer & State Exams Ready</h3>
-      <p style="margin:0;">इस सिम्युलेटर में <b>CG Sericulture Field Officer Master Question Bank</b> के बहुप्रचलित 50 प्रश्न पहले से अंतर्निहित हैं। आप सीधे मॉक शुरू कर सकते हैं या Gemini से तैयार अपना कोई भी कस्टम JSON लोड कर सकते हैं।</p>
+      <p style="margin:0;">इस सिम्युलेटर में <b>CG Sericulture Field Officer Master Question Bank</b> के 50 प्रामाणिक प्रश्न अंतर्निहित हैं। आप सीधे मॉक शुरू कर सकते हैं या Gemini से तैयार कस्टम JSON लोड कर सकते हैं।</p>
     </div>
 
     <div class="card">
       <h3>🏆 Official Sericulture Practice Mock</h3>
-      <p>छत्तीसगढ़ रेशम प्रभाग, तसर कीटपालन (Raily/Daba), पादप कार्यिकी एवं कीट विज्ञान पर आधारित 50 प्रश्नों का आधिकारिक टेस्ट:</p>
+      <p>छत्तीसगढ़ रेशम प्रभाग, तसर कीटपालन (Raily/Daba), पोषक वृक्ष एवं कीट विज्ञान पर आधारित 50 प्रश्नों का आधिकारिक टेस्ट:</p>
       <button class="btn btn-green" type="button" onclick="startBuiltInSericultureMock()">🚀 Start Sericulture Master Mock (50 MCQs - 30 Min)</button>
     </div>
 
@@ -147,11 +145,11 @@
         कुल प्रश्न: <b id="resTotal">0</b> | हल किए गए: <b id="resAttempted">0</b> | छोड़े गए: <b id="resUnattempted">0</b> | कुल समय: <b id="resTimeTaken">0 min</b>
       </div>
 
-      <div style="display:flex; gap:10px; margin-top:12px;" class="no-print">
+      <div style="display:flex; gap:10px; margin-top:12px;">
         <button class="btn btn-pdf" id="exportPdfBtn" type="button" onclick="exportReportToPDF()">📄 Export Report as PDF</button>
         <button class="btn btn-outline" type="button" onclick="toggleReview()">🔍 Show Detailed Answers</button>
       </div>
-      <button class="btn no-print" style="margin-top:8px;" type="button" onclick="location.reload()">🔄 Back to Home</button>
+      <button class="btn" style="margin-top:8px;" type="button" onclick="location.reload()">🔄 Back to Home</button>
 
       <div class="card hidden" id="reviewContainer" style="margin-top:16px; border:none; padding:0; box-shadow:none;">
         <h3 style="border-bottom:1px solid var(--border); padding-bottom:6px;">Detailed Question Analysis</h3>
@@ -173,45 +171,45 @@
       {"question":"9. विश्व में सुनहरे 'मूंगा रेशम' (Muga Silk) के उत्पादन पर किस भारतीय राज्य का एकाधिकार (GI Monopoly) है?","options":["मणिपुर","मेघालय","असम","नागालैंड"],"answer":2},
       {"question":"10. छत्तीसगढ़ का कौन सा प्रशासनिक संभाग प्राकृतिक साल-आधारित रेली कोकून का अधिकतम उत्पादन करता है?","options":["बिलासपुर संभाग","दुर्ग संभाग","सरगुजा संभाग","बस्तर संभाग"],"answer":3},
       {"question":"11. केंद्रीय तसर रेशमकीट बीज स्टेशन (CTSSS) छत्तीसगढ़ में कहाँ स्थित है?","options":["लाखा (रायगढ़)","कोण्डागांव","दंतेवाड़ा","चांपा"],"answer":0},
-      {"question":"12. उष्णकटिबंधीय तसर रेशमकीट (Antheraea mylitta) का सही कीटवैज्ञानिक गण (Order) एवं कुल (Family) क्या है?","options":["डिप्टेरा : बॉम्बीसिडी","लेपिडोप्टेरा : सैटर्निइडी","कोलियोप्टेरा : कॉम्ब्रीटेसी","हेमिप्टेरा : सैटर्निइडी"],"answer":1},
-      {"question":"13. वयस्क सैटर्निइड शलभों (तसर) को बॉम्बीसिड शलभों (शहतूत) से पृथक करने वाला प्रमुख आकारिकीय लक्षण कौन सा है?","options":["पंखों पर पारदर्शी नेत्र-धब्बे (Ocelli/Fenestrae)","संयुक्त नेत्रों की अनुपस्थिति","मजबूत मुखांग","लंबी पिछली टांगें"],"answer":0},
-      {"question":"14. वयस्क नर उष्णकटिबंधीय तसर शलभ (Antheraea mylitta) में किस प्रकार का शृंगिका (Antenna) पाया जाता है?","options":["फिलीफॉर्म (Filiform)","बाइपेक्टिनेट (Bipectinate)","कैपिटेट (Capitate)","मोनिलीफॉर्म (Moniliform)"],"answer":1},
+      {"question":"12. उष्णकटिबंधीय तसर रेशमकीट (Antheraea mylitta) का सही कीटवैज्ञानिक गण एवं कुल क्या है?","options":["डिप्टेरा : बॉम्बीसिडी","लेपिडोप्टेरा : सैटर्निइडी","कोलियोप्टेरा : कॉम्ब्रीटेसी","हेमिप्टेरा : सैटर्निइडी"],"answer":1},
+      {"question":"13. वयस्क सैटर्निइड शलभों (तसर) को बॉम्बीसिड शलभों से पृथक करने वाला प्रमुख लक्षण कौन सा है?","options":["पंखों पर पारदर्शी नेत्र-धब्बे (Ocelli)","संयुक्त नेत्रों की अनुपस्थिति","मजबूत मुखांग","लंबी पिछली टांगें"],"answer":0},
+      {"question":"14. वयस्क नर उष्णकटिबंधीय तसर शलभ में किस प्रकार का शृंगिका पाया जाता है?","options":["फिलीफॉर्म","बाइपेक्टिनेट (पंखनुमा)","कैपिटेट","मोनिलीफॉर्म"],"answer":1},
       {"question":"15. उष्णकटिबंधीय तसर रेशमकीट (Antheraea mylitta) में दर्ज द्विगुणित (2n) गुणसूत्र संख्या कितनी है?","options":["2n = 28","2n = 48","2n = 56","2n = 62"],"answer":3},
-      {"question":"16. रेशमकीट लार्वा में पाई जाने वाली रेशम ग्रंथियां (Silk Glands) वास्तव में किसका विकासात्मक रूपांतरण हैं?","options":["लैबियल ग्रंथियां (लार ग्रंथियां)","मैक्सिलरी ग्रंथियां","मैंडिबुलर ग्रंथियां","मैलपीघियन नलिकाएं"],"answer":0},
-      {"question":"17. रेशमकीट कैटरपिलर के शरीर पर पुच्छीय शृंग (Caudal Horn) किस उदर खंड के पृष्ठीय भाग पर स्थित होता है?","options":["5वें उदर खंड","6वें उदर खंड","8वें उदर खंड","10वें उदर खंड"],"answer":2},
+      {"question":"16. रेशमकीट लार्वा में पाई जाने वाली रेशम ग्रंथियां वास्तव में किसका विकासात्मक रूपांतरण हैं?","options":["लैबियल ग्रंथियां (लार ग्रंथियां)","मैक्सिलरी ग्रंथियां","मैंडिबुलर ग्रंथियां","मैलपीघियन नलिकाएं"],"answer":0},
+      {"question":"17. रेशमकीट कैटरपिलर के शरीर पर पुच्छीय शृंग किस उदर खंड के पृष्ठीय भाग पर स्थित होता है?","options":["5वें उदर खंड","6वें उदर खंड","8वें उदर खंड","10वें उदर खंड"],"answer":2},
       {"question":"18. रेशम कताई के समय अग्र रेशम प्रेस में चिकनाई युक्त स्राव छोड़ने वाली सहायक ग्रंथि कौन सी है?","options":["फिलिपी (लियोनेट) ग्रंथि","प्रोथोरैसिक ग्रंथि","कॉरपोरा एलाटा","ग्रीन ग्रंथि"],"answer":0},
-      {"question":"19. छत्तीसगढ़ में उष्णकटिबंधीय तसर रेशमकीट के दो प्रमुख प्राथमिक पोषक वृक्ष (Primary Host Plants) कौन से हैं?","options":["साल एवं सागौन","असन (Terminalia tomentosa) एवं अर्जुन (Terminalia arjuna)","धौरा एवं खैर","शहतूत एवं अरंडी"],"answer":1},
+      {"question":"19. छत्तीसगढ़ में उष्णकटिबंधीय तसर रेशमकीट के दो प्रमुख प्राथमिक पोषक वृक्ष कौन से हैं?","options":["साल एवं सागौन","असन (Terminalia tomentosa) एवं अर्जुन (Terminalia arjuna)","धौरा एवं खैर","शहतूत एवं अरंडी"],"answer":1},
       {"question":"20. तसर पोषक वृक्ष अर्जुन और असन वानस्पतिक रूप से किस कुल (Family) के अंतर्गत आते हैं?","options":["Dipterocarpaceae","Combretaceae","Moraceae","Fabaceae"],"answer":1},
-      {"question":"21. छत्तीसगढ़ी स्थानीय बोली में 'टर्मिनेलिया अर्जुन' (Terminalia arjuna) वृक्ष को किस नाम से जाना जाता है?","options":["साजा","कहुआ या कोहा","धौरा","हर्दा"],"answer":1},
+      {"question":"21. छत्तीसगढ़ी स्थानीय बोली में 'टर्मिनेलिया अर्जुन' वृक्ष को किस नाम से जाना जाता है?","options":["साजा","कहुआ या कोहा","धौरा","हर्दा"],"answer":1},
       {"question":"22. एरी रेशमकीट (Samia ricini) का प्राथमिक पोषक पौधा कौन सा है?","options":["अरंडी (Ricinus communis)","सोम (Machilus bombycina)","शहतूत (Morus alba)","साजा (Terminalia tomentosa)"],"answer":0},
-      {"question":"23. टर्मिनेलिया अर्जुन एवं टर्मिनेलिया टोमेंटोसा का फल वानस्पतिक रूप से किस प्रकार का होता है?","options":["बेरी (Berry)","5-पक्षीय रेशेदार काष्ठीय ड्रूप (Drupe)","सोरोसिस (Sorosis)","कैप्सूल (Capsule)"],"answer":1},
+      {"question":"23. टर्मिनेलिया अर्जुन एवं टर्मिनेलिया टोमेंटोसा का फल वानस्पतिक रूप से किस प्रकार का होता है?","options":["बेरी","5-पक्षीय रेशेदार काष्ठीय ड्रूप","सोरोसिस","कैप्सूल"],"answer":1},
       {"question":"24. शहतूत (Morus alba) के खाने योग्य समग्र फल को वानस्पतिक रूप से क्या कहा जाता है?","options":["साइकोनस","ड्रूप","सोरोसिस","लोमेंटम"],"answer":2},
-      {"question":"25. सीएसआरटीआई (CSRTI) मैसूर द्वारा सिंचित क्षेत्रों हेतु अनुशंसित शहतूत की उच्च उपज देने वाली किस्म कौन सी है?","options":["विक्ट्री-1 (V1)","कनवा-2 (K2)","एस-36","एम-5"],"answer":0},
+      {"question":"25. सीएसआरटीआई मैसूर द्वारा सिंचित क्षेत्रों हेतु अनुशंसित शहतूत की उच्च उपज देने वाली किस्म कौन सी है?","options":["विक्ट्री-1 (V1)","कनवा-2 (K2)","एस-36","एम-5"],"answer":0},
       {"question":"26. छत्तीसगढ़ में बाह्य तसर कीटपालन हेतु आदर्श तापमान एवं सापेक्ष आर्द्रता (RH) कितनी होनी चाहिए?","options":["18°C से 22°C और 50% से 60%","25°C से 32°C और 70% से 85%","35°C से 40°C और 40% से 50%","15°C से 25°C और 90% से 95%"],"answer":1},
       {"question":"27. रेशम पोषक पौधों और कीटपालन के लिए उपयुक्त मृदा का आदर्श pH मान कितना होना चाहिए?","options":["4.5 से 5.2","5.5 से 6.0","6.2 से 6.8","7.8 से 8.5"],"answer":2},
-      {"question":"28. रेशम प्लॉट्स में अम्लीय मृदा (pH < 5.5) के सुधार हेतु किस मृदा सुधारक (Soil amendment) की संस्तुति की जाती है?","options":["कृषि चूना (CaCO3) या डोलोमाइट","जिप्सम","आयरन पाइराइट्स","यूरिया"],"answer":0},
+      {"question":"28. रेशम प्लॉट्स में अम्लीय मृदा (pH < 5.5) के सुधार हेतु किस मृदा सुधारक की संस्तुति की जाती है?","options":["कृषि चूना (CaCO3) या डोलोमाइट","जिप्सम","आयरन पाइराइट्स","यूरिया"],"answer":0},
       {"question":"29. छत्तीसगढ़ के कुल रेशम उत्पादन में 90% से अधिक का भारी योगदान किस रेशम किस्म का है?","options":["शहतूती रेशम","उष्णकटिबंधीय तसर (कोसा) रेशम","एरी रेशम","मूंगा रेशम"],"answer":1},
       {"question":"30. किस रेशम को 'अहिंसा रेशम' कहा जाता है क्योंकि इसमें धागा निष्कर्षण से पूर्व शलभ प्राकृतिक रूप से बाहर निकल जाता है?","options":["शहतूत रेशम","तसर रेशम","एरी रेशम","मूंगा रेशम"],"answer":2},
       {"question":"31. छत्तीसगढ़ का कौन सा शहर 'कोसा सिल्क की राजधानी' अथवा 'सिल्क सिटी' के नाम से प्रसिद्ध है?","options":["रायगढ़","चांपा (जांजगीर-चांपा)","जगदलपुर","धमतरी"],"answer":1},
       {"question":"32. छत्तीसगढ़ में कोसा रेशम की कताई और बुनाई का कार्य पारंपरिक रूप से किस समुदाय द्वारा किया जाता है?","options":["देवांगन (कोष्ठा) समुदाय","कमर समुदाय","हलबा समुदाय","बिरहोर समुदाय"],"answer":0},
       {"question":"33. पारंपरिक छत्तीसगढ़ी कोकून व्यापार माप में एक 'कहन' (Kahan) का मान कितने कोकून के बराबर होता है?","options":["80 कोकून","320 कोकून","1,280 कोकून","1,600 कोकून"],"answer":2},
       {"question":"34. छत्तीसगढ़ की पारंपरिक कोकून गणना तालिका में एक 'पोन' (Pon) कितने कोकून के बराबर होता है?","options":["20 कोकून","40 कोकून","80 कोकून","100 कोकून"],"answer":2},
-      {"question":"35. तसर रेशम तंतु (Silk Filament) के आंतरिक कोर का निर्माण करने वाला मुख्य संरचनात्मक रेशेदार प्रोटीन कौन सा है?","options":["सेरिसिन","फाइब्रोइन","केराटिन","कोलेजन"],"answer":1},
-      {"question":"36. शुद्ध कच्चे रेशम (Raw Silk) के लिए अंतरराष्ट्रीय मानक परीक्षण अनुसार आधिकारिक नमी पुनर्प्राप्ति (Moisture Regain) प्रतिशत क्या है?","options":["8.5%","11.0%","13.5%","15.0%"],"answer":1},
-      {"question":"37. रेशम फाइब्रोइन प्रोटीन की प्राथमिक संरचना में किन तीन अमीनो अम्लों की प्रधानता होती है?","options":["ग्लाइसीन, एलानिन और सेरीन","लाइसिन, वेलीन और ट्रिप्टोफैन","मेथियोनीन, प्रोलिन और ल्यूसीन","ग्लूटामिक एसिड, एस्पार्टिक एसिड और हिस्टिडीन"],"answer":0},
-      {"question":"38. तसर रेशमकीट (Antheraea mylitta) का जीवन चक्र कीटविज्ञान के अनुसार किस प्रकार का कायांतरण दर्शाता है?","options":["अपूरणीय कायांतरण (Ametabolous)","अपूर्ण कायांतरण (Hemimetabolous)","पूर्ण कायांतरण (Holometabolous)","अप्रत्यक्ष अपूर्ण कायांतरण (Paurometabolous)"],"answer":2},
-      {"question":"39. रेशमकीट लार्वा में त्वचा निर्मोचन (Ecdysis / Molting) की प्रक्रिया को प्रेरित करने वाला हार्मोन कौन सा है?","options":["जुवेनाइल हार्मोन (JH)","एक्डाइसोन (Ecdysone)","डायपॉज हार्मोन (DH)","फेरोमोन"],"answer":1},
-      {"question":"40. रेशम ग्रंथि का कौन सा भाग 'सेरिसिन' (गोंद सदृश आवरण) का संश्लेषण और स्रावण करता है?","options":["अग्र रेशम ग्रंथि (ASG)","मध्य रेशम ग्रंथि (MSG)","पश्च रेशम ग्रंथि (PSG)","स्पिनरेट"],"answer":1},
+      {"question":"35. तसर रेशम तंतु के आंतरिक कोर का निर्माण करने वाला मुख्य संरचनात्मक रेशेदार प्रोटीन कौन सा है?","options":["सेरिसिन","फाइब्रोइन","केराटिन","कोलेजन"],"answer":1},
+      {"question":"36. शुद्ध कच्चे रेशम (Raw Silk) के लिए अंतरराष्ट्रीय मानक परीक्षण अनुसार आधिकारिक नमी पुनर्प्राप्ति प्रतिशत क्या है?","options":["8.5%","11.0%","13.5%","15.0%"],"answer":1},
+      {"question":"37. रेशम फाइब्रोइन प्रोटीन की प्राथमिक संरचना में किन तीन अमीनो अम्लों की प्रधानता होती है?","options":["ग्लाइसीन, एलानिन और सेरीन","लाइसिन, वेलीन और ट्रिप्टोफैन","मेथियोनीन, प्रोलिन और ल्यूसीन","ग्लूटामिक एसिड और एस्पार्टिक एसिड"],"answer":0},
+      {"question":"38. तसर रेशमकीट का जीवन चक्र कीटविज्ञान के अनुसार किस प्रकार का कायांतरण दर्शाता है?","options":["अपूरणीय कायांतरण","अपूर्ण कायांतरण","पूर्ण कायांतरण (Holometabolous)","अप्रत्यक्ष अपूर्ण कायांतरण"],"answer":2},
+      {"question":"39. रेशमकीट लार्वा में त्वचा निर्मोचन की प्रक्रिया को प्रेरित करने वाला हार्मोन कौन सा है?","options":["जुवेनाइल हार्मोन","एक्डाइसोन (Ecdysone)","डायपॉज हार्मोन","फेरोमोन"],"answer":1},
+      {"question":"40. रेशम ग्रंथि का कौन सा भाग 'सेरिसिन' का संश्लेषण और स्रावण करता है?","options":["अग्र रेशम ग्रंथि","मध्य रेशम ग्रंथि (MSG)","पश्च रेशम ग्रंथि","स्पिनरेट"],"answer":1},
       {"question":"41. कोकून से बाहर निकलते समय वयस्क रेशम शलभ कठोर आवरण को गलाने के लिए किस एंजाइम का स्राव करता है?","options":["पेप्सिन","कोकूनेज (Cocoonase)","एमाइलेज","लाइपेज"],"answer":1},
-      {"question":"42. बस्तर के सघन साल वनों में पाई जाने वाली प्रसिद्ध स्थानिक जंगली तसर इको-रेस कौन सी है?","options":["डाबा (Daba)","रेली (Raily)","सुकिंदा (Sukinda)","मोडाल (Modal)"],"answer":1},
-      {"question":"43. छत्तीसगढ़ में ब्लॉक प्लांटेशनों में व्यावसायिक रूप से कृषकों द्वारा सर्वाधिक पाली जाने वाली तसर इको-रेस कौन सी है?","options":["डाबा","रेली","सरिहन","भंडारा"],"answer":0},
+      {"question":"42. बस्तर के सघन साल वनों में पाई जाने वाली प्रसिद्ध स्थानिक जंगली तसर इको-रेस कौन सी है?","options":["डाबा","रेली (Raily)","सुकिंदा","मोडाल"],"answer":1},
+      {"question":"43. छत्तीसगढ़ में ब्लॉक प्लांटेशनों में व्यावसायिक रूप से कृषकों द्वारा सर्वाधिक पाली जाने वाली तसर इको-रेस कौन सी है?","options":["डाबा (Daba)","रेली","सरिहन","भंडारा"],"answer":0},
       {"question":"44. बस्तर के वनों से साल-आधारित प्राकृतिक रेली कोकून एकत्र करने की स्थानीय प्रथा को क्या कहा जाता है?","options":["कोसा बीजना","कोसा टिपई","कोसा झड़ाई","कोसा कटाई"],"answer":1},
       {"question":"45. मध्य भारत में तसर रेशमकीट की प्यूपा सुप्तावस्था (Pupal Diapause) की अवधि लगभग कितनी होती है?","options":["2 से 3 माह","4 से 5 माह","7 से 8 माह (नवंबर से जून)","10 से 11 माह"],"answer":2},
       {"question":"46. रेशमकीट में होने वाला घातक 'पेब्रिन' (Pebrine) रोग किस प्रोटोजोआ परजीवी के कारण होता है?","options":["Nosema bombycis","Beauveria bassiana","Bacillus thuringiensis","Streptococcus faecalis"],"answer":0},
-      {"question":"47. रेशमकीट में 'व्हाइट मस्कार्डिन' (White Muscardine) रोग का रोगजनक कारक कौन सा कवक है?","options":["Beauveria bassiana","Aspergillus flavus","Fusarium oxysporum","Metarhizium anisopliae"],"answer":0},
+      {"question":"47. रेशमकीट में 'व्हाइट मस्कार्डिन' रोग का रोगजनक कारक कौन सा कवक है?","options":["Beauveria bassiana","Aspergillus flavus","Fusarium oxysporum","Metarhizium anisopliae"],"answer":0},
       {"question":"48. रेशमकीट पालन में पछेती अवस्था के लार्वा को गंभीर क्षति पहुँचाने वाली परजीवी 'उजी मक्खी' का वैज्ञानिक नाम क्या है?","options":["Musca domestica","Exorista bombycis","Drosophila melanogaster","Bactrocera dorsalis"],"answer":1},
-      {"question":"49. केंद्रीय तसर अनुसंधान एवं प्रशिक्षण संस्थान (CTR&TI) कहाँ स्थित है?","options":["मैसूर (कर्नाटक)","रांची (झारखंड)","बेरहामपुर (पश्चिम बंगाल)","जोरहाट (असम)"],"answer":1},
-      {"question":"50. रेशम रीलिंग प्रक्रिया से पूर्व कोकून के रेशे को नुकसान पहुँचाए बिना अंदर स्थित प्यूपा को निष्क्रिय/मारने की प्रक्रिया क्या कहलाती है?","options":["डीगमिंग (Degumming)","स्टिफ्लिंग (Stifling)","क्रॉइसर (Croissure)","कुकिंग (Cooking)"],"answer":1}
+      {"question":"49. केंद्रीय तसर अनुसंधान एवं प्रशिक्षण संस्थान (CTR&TI) कहाँ स्थित है?","options":["मैसूर","रांची (झारखंड)","बेरहामपुर","जोरहाट"],"answer":1},
+      {"question":"50. रेशम रीलिंग प्रक्रिया से पूर्व कोकून के रेशे को नुकसान पहुँचाए बिना अंदर स्थित प्यूपा को निष्क्रिय करने की प्रक्रिया क्या कहलाती है?","options":["डीगमिंग","स्टिफ्लिंग (Stifling)","क्रॉइसर","कुकिंग"],"answer":1}
     ];
 
     let questions = [], currentIndex = 0, userAnswers = {}, timerInterval = null, timeLeft = 0, initialTime = 0, currentSubject = "Sericulture Master Exam", candidateName = "Vishal Tripathi", examStartTime = null;
@@ -222,11 +220,9 @@
     }
 
     function cleanAndParseJSON(raw) {
-      let str = raw.trim();
-      str = str.replace(/```json/gi, '').replace(/```/g, '').trim();
-      const start = str.indexOf('[');
-      const end = str.lastIndexOf(']');
-      if (start === -1 || end === -1 || end <= start) throw new Error("मान्य JSON Array नहीं मिला। कृपया Gemini का पूरा आउटपुट कॉपी करें।");
+      let str = raw.trim().replace(/```json/gi, '').replace(/```/g, '').trim();
+      const start = str.indexOf('['), end = str.lastIndexOf(']');
+      if (start === -1 || end === -1 || end <= start) throw new Error("मान्य JSON Array नहीं मिला।");
       return JSON.parse(str.substring(start, end + 1));
     }
 
@@ -235,17 +231,12 @@
       return list.map((item, idx) => {
         const qText = item.question || item.q || `प्रश्न ${idx + 1}`;
         let rawOpts = item.options || item.choices || item.opts || [];
-        let opts = [];
-        if (Array.isArray(rawOpts)) opts = rawOpts.map(o => String(o).trim());
-        else if (typeof rawOpts === 'object' && rawOpts !== null) opts = Object.values(rawOpts).map(o => String(o).trim());
-        
+        let opts = Array.isArray(rawOpts) ? rawOpts.map(o => String(o).trim()) : (typeof rawOpts === 'object' && rawOpts !== null ? Object.values(rawOpts).map(o => String(o).trim()) : []);
         while (opts.length < 4) opts.push(`विकल्प ${String.fromCharCode(65 + opts.length)}`);
-
         let ans = 0;
         if (typeof item.answer === 'number' && item.answer >= 0 && item.answer < 4) ans = item.answer;
         else if (typeof item.answer === 'string') {
-          const char = item.answer.trim().toUpperCase().charAt(0);
-          const charIdx = char.charCodeAt(0) - 65;
+          const charIdx = item.answer.trim().toUpperCase().charCodeAt(0) - 65;
           if (charIdx >= 0 && charIdx < 4) ans = charIdx;
         }
         return { question: qText, options: opts.slice(0, 4), answer: ans };
@@ -260,23 +251,14 @@
     }
 
     function loadQuestionsFromJSON() {
-      const status = document.getElementById('status');
-      const input = document.getElementById('jsonInput').value;
+      const status = document.getElementById('status'), input = document.getElementById('jsonInput').value;
       const title = document.getElementById('testTitleInput').value.trim();
       candidateName = document.getElementById('candidateNameInput').value.trim() || "Vishal Tripathi";
-
-      if (!input.trim()) {
-        status.innerHTML = '<span style="color:var(--danger);">❌ कृपया बॉक्स में JSON कोड पेस्ट करें!</span>';
-        alert("कृपया पहले बॉक्स में JSON कोड पेस्ट करें!");
-        return;
-      }
-
+      if (!input.trim()) { alert("कृपया पहले बॉक्स में JSON कोड पेस्ट करें!"); return; }
       try {
-        const parsed = cleanAndParseJSON(input);
-        questions = normalizeQuestions(parsed);
-        currentSubject = title || "Agronomy / Sericulture Custom Mock Test";
-        const calculatedMinutes = Math.max(15, Math.round(questions.length * 0.6));
-        startExamTimer(calculatedMinutes);
+        questions = normalizeQuestions(cleanAndParseJSON(input));
+        currentSubject = title || "Custom Mock Test";
+        startExamTimer(Math.max(15, Math.round(questions.length * 0.6)));
       } catch (err) {
         status.innerHTML = `<span style="color:var(--danger);">❌ त्रुटि: ${err.message}</span>`;
         alert("त्रुटि: " + err.message);
@@ -294,4 +276,63 @@
           answer: (i % 4)
         });
       }
-      startExamTimer(count === 5
+      startExamTimer(count === 50 ? 30 : 60);
+    }
+
+    function startExamTimer(minutes) {
+      initialTime = minutes * 60;
+      timeLeft = initialTime;
+      currentIndex = 0;
+      userAnswers = {};
+      examStartTime = new Date();
+      launchExamUI();
+    }
+
+    function launchExamUI() {
+      document.getElementById('homeView').classList.add('hidden');
+      document.getElementById('resultView').classList.add('hidden');
+      document.getElementById('testView').classList.remove('hidden');
+      document.getElementById('timerDisplay').classList.remove('hidden');
+      renderQuestion();
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+        document.getElementById('timerDisplay').innerText = `⏱️ ${m}:${s < 10 ? '0' : ''}${s}`;
+        if (timeLeft <= 0) { clearInterval(timerInterval); finishTest(); }
+      }, 1000);
+    }
+
+    function renderQuestion() {
+      const q = questions[currentIndex];
+      document.getElementById('qIndex').innerText = `Question ${currentIndex + 1} of ${questions.length}`;
+      document.getElementById('qText').innerText = q.question;
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+      (q.options || []).forEach((opt, idx) => {
+        const div = document.createElement('div');
+        div.className = 'option' + (userAnswers[currentIndex] === idx ? ' selected' : '');
+        div.innerText = `${String.fromCharCode(65 + idx)}. ${opt}`;
+        div.onclick = () => { userAnswers[currentIndex] = idx; renderQuestion(); };
+        container.appendChild(div);
+      });
+      document.getElementById('prevBtn').disabled = (currentIndex === 0);
+      document.getElementById('nextBtn').innerText = (currentIndex === questions.length - 1) ? 'Review & Submit' : 'Save & Next';
+    }
+
+    function navigateQuestion(step) {
+      if (step === 1 && currentIndex === questions.length - 1) { confirmSubmit(); return; }
+      currentIndex = Math.max(0, Math.min(questions.length - 1, currentIndex + step));
+      renderQuestion();
+    }
+
+    function confirmSubmit() {
+      const answered = Object.keys(userAnswers).length;
+      if (confirm(`सबमिट करना चाहते हैं?\n\nकुल हल किए गए: ${answered}\nछोड़े गए: ${questions.length - answered}`)) finishTest();
+    }
+
+    function finishTest() {
+      clearInterval(timerInterval);
+      const examEndTime = new Date();
+      const timeSpentMinutes = Math.max(1, Math.round((initialTime - timeLeft) / 60));
+      let correct = 0, wrong = 0, unattempted = 0
