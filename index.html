@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CG Sericulture & Agriculture Exam Simulator</title>
-  <!-- jsPDF & html2canvas for PDF Export -->
+  <title>CG Sericulture Field Officer CBT Exam Simulator</title>
+  <!-- jsPDF & html2canvas for PDF Report Card Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
@@ -23,19 +23,19 @@
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { margin: 0; background: var(--bg); color: var(--text); -webkit-tap-highlight-color: transparent; }
     .header { background: var(--primary); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .container { max-width: 800px; margin: 12px auto; padding: 0 12px; }
+    .container { max-width: 820px; margin: 12px auto; padding: 0 12px; }
     .card { background: var(--surface); padding: 16px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.05); margin-bottom: 14px; }
     h3 { margin: 0 0 8px 0; font-size: 16px; font-weight: 700; }
     p { margin: 0 0 10px 0; font-size: 13px; color: var(--muted); }
-    .btn { background: var(--primary); color: #fff; border: none; padding: 12px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; margin-top: 6px; display: block; text-align: center; }
+    .btn { background: var(--primary); color: #fff; border: none; padding: 13px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; margin-top: 6px; display: block; text-align: center; }
     .btn:active { background: var(--primary-dark); }
     .btn-green { background: var(--success); }
     .btn-red { background: var(--danger); }
     .btn-pdf { background: #d32f2f; color: #fff; }
     .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-    input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; margin-bottom: 8px; background: #fff; }
+    input, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; margin-bottom: 8px; background: #fff; }
     .hidden { display: none !important; }
-    .timer { font-size: 16px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.25); padding: 4px 12px; border-radius: 20px; }
+    .timer { font-size: 16px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.25); padding: 4px 12px; border-radius: 20px; letter-spacing: 0.5px; }
     .option { border: 1px solid var(--border); padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; font-size: 14.5px; line-height: 1.4; }
     .option:hover { background: #f0f7ff; }
     .option.selected { background: #e3f2fd; border-color: var(--primary); font-weight: 600; }
@@ -51,32 +51,43 @@
     .report-header { border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 12px; }
     .report-title { font-size: 18px; font-weight: bold; color: var(--primary); margin: 0; }
     .report-meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .palette-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 10px; }
+    .p-btn { padding: 6px 0; font-size: 11px; font-weight: bold; text-align: center; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; background: #fff; }
+    .p-btn.attempted { background: #c8e6c9; border-color: var(--success); color: var(--success); }
+    .p-btn.active { border: 2px solid var(--primary); background: #bbdefb; }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <div style="font-weight:700; font-size:16px;">🌾 Sericulture & Agriculture Exam Simulator</div>
+    <div style="font-weight:700; font-size:16px;">🌾 Sericulture Field Officer CBT Simulator</div>
     <div id="timerDisplay" class="timer hidden">⏱️ 00:00</div>
   </div>
 
   <!-- Home View -->
   <div class="container" id="homeView">
     <div class="card" style="border-left: 4px solid var(--success);">
-      <h3 style="color:var(--success); margin-bottom:4px;">🎯 CG Sericulture Field Officer Mock Test</h3>
-      <p style="margin:0;">इस टेस्ट में सस्य विज्ञान, रेशम प्रभाग, कीटपालन एवं पोषक वृक्षों के 50 प्रामाणिक प्रश्न शामिल हैं। किसी API Key की आवश्यकता नहीं है।</p>
+      <h3 style="color:var(--success); margin-bottom:4px;">🎯 CG रेशम प्रभाग & सस्य विज्ञान CBT टेस्ट</h3>
+      <p style="margin:0;">यह टेस्ट <b>CG Sericulture Field Officer Master Question Bank (Topics 1 to 12)</b> पर आधारित है। इसमें <b>-0.25 नेगेटिव मार्किंग</b>, 30 मिनट का टाइमर और <b>PDF रिपोर्ट कार्ड एक्सपोर्ट</b> शामिल है। किसी भी API Key की आवश्यकता नहीं है।</p>
     </div>
 
     <div class="card">
-      <h3>👤 परीक्षार्थी विवरण</h3>
-      <label style="font-size:12px; font-weight:600; color:var(--muted);">अपना नाम दर्ज करें (PDF स्कोरकार्ड के लिए):</label>
-      <input type="text" id="candidateNameInput" placeholder="अपना नाम लिखें" value="Vishal Tripathi">
+      <h3>👤 परीक्षार्थी विवरण (Candidate Details)</h3>
+      <label style="font-size:12px; font-weight:600; color:var(--muted);">परीक्षार्थी का नाम (PDF रिपोर्ट कार्ड हेतु):</label>
+      <input type="text" id="candidateNameInput" placeholder="अपना नाम दर्ज करें" value="Vishal Tripathi">
 
-      <button class="btn btn-green" type="button" onclick="startTest()">🚀 Start Test (50 Questions - 30 Minutes)</button>
+      <button class="btn btn-green" type="button" onclick="startTest()">🚀 Start Sericulture Master Exam (50 MCQs - 30 Min)</button>
+    </div>
+
+    <div class="card">
+      <h3>📥 Custom JSON Question Mode (Optional)</h3>
+      <p>यदि भविष्य में आप स्वयं Gemini द्वारा तैयार किसी अन्य विषय के प्रश्नों का टेस्ट देना चाहें, तो उसका JSON यहाँ पेस्ट कर सकते हैं:</p>
+      <textarea id="jsonInput" rows="4" placeholder='[ { "question": "...", "options": ["A","B","C","D"], "answer": 0 } ]'></textarea>
+      <button class="btn btn-outline" type="button" onclick="loadCustomQuestions()">▶️ Start Custom Pasted Exam</button>
     </div>
   </div>
 
-  <!-- Test View -->
+  <!-- CBT Exam View -->
   <div class="container hidden" id="testView">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -90,11 +101,52 @@
         <button class="btn btn-outline" id="prevBtn" type="button" onclick="navigateQuestion(-1)">Previous</button>
         <button class="btn" id="nextBtn" type="button" onclick="navigateQuestion(1)">Save & Next</button>
       </div>
+
+      <!-- Question Jump Palette -->
+      <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:10px;">
+        <div style="font-size:12px; font-weight:bold; color:var(--muted);">Question Navigation Palette:</div>
+        <div class="palette-grid" id="paletteGrid"></div>
+      </div>
     </div>
   </div>
 
-  <!-- Result View -->
+  <!-- Result & PDF Export View -->
   <div class="container hidden" id="resultView">
     <div class="card" id="printableReport">
       <div class="report-header">
-        <div
+        <div class="report-title">🌾 CG Vyapam/CGPSC Sericulture Exam Scorecard</div>
+        <div class="report-meta" id="reportMetaInfo">परीक्षार्थी: -- | दिनांक एवं समय: --</div>
+        <div class="report-meta" style="font-weight:600; color:var(--primary); margin-top:2px;">विषय: CG Sericulture Field Officer Master Exam (Topics 1-12)</div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="resNetScore">0.00</div>
+          <div class="stat-lbl">Net Marks (-0.25 Neg)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="resAccuracy">0%</div>
+          <div class="stat-lbl">Accuracy Rate</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val badge-correct" id="resCorrect">0</div>
+          <div class="stat-lbl">Correct (+1.0)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val badge-wrong" id="resWrong">0</div>
+          <div class="stat-lbl">Incorrect (-0.25)</div>
+        </div>
+      </div>
+
+      <div style="text-align:left; font-size:13px; color:var(--muted); margin-bottom:14px; border-top:1px solid var(--border); padding-top:8px;">
+        कुल प्रश्न: <b id="resTotal">50</b> | हल किए गए: <b id="resAttempted">0</b> | छोड़े गए: <b id="resUnattempted">0</b> | लिया गया समय: <b id="resTimeTaken">0 min</b>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <button class="btn btn-pdf" id="exportPdfBtn" type="button" onclick="exportReportToPDF()">📄 Export Report as PDF</button>
+        <button class="btn btn-outline" type="button" onclick="toggleReview()">🔍 Show Detailed Answers</button>
+      </div>
+      <button class="btn" style="margin-top:8px;" type="button" onclick="location.reload()">🔄 Back to Home</button>
+
+      <div class="card hidden" id="reviewContainer" style="margin-top:16px; border:none; padding:0; box-shadow:none;">
+        <h3 style="border-bottom:1px solid var(--
