@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Universal CBT Exam Simulator</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --success: #15803d;
+      --danger: #b91c1c;
+      --warning: #b45309;
+      --purple: #6d28d9;
+      --gray-bg: #f8fafc;
+      --border: #cbd5e1;
+      --text: #0f172a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+    body { background: var(--gray-bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background: #0f172a; color: white; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #2563eb; position: sticky; top: 0; z-index: 50; }
+    .header-title { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .badge-exam { background: #2563eb; color: #fff; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; }
+    .timer-box { background: #1e293b; border: 1px solid #475569; padding: 5px 12px; border-radius: 6px; font-weight: 700; font-size: 1.1rem; color: #38bdf8; }
+    .timer-box.urgent { color: #f87171; border-color: #ef4444; animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: 0.6; } }
+    .container { max-width: 1280px; margin: 0 auto; width: 100%; flex: 1; padding: 12px; display: flex; flex-direction: column; }
+    .screen { display: none; width: 100%; }
+    .screen.active { display: block; }
+    .home-card { background: white; border-radius: 10px; border: 1px solid var(--border); padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 16px; }
+    .hero-banner { background: linear-gradient(135deg, #1e3a8a, #0369a1); color: white; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+    .test-modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 14px; }
+    .mode-btn { background: #f8fafc; border: 2px solid var(--border); border-radius: 8px; padding: 16px; text-align: left; cursor: pointer; transition: all 0.2s; }
+    .mode-btn:hover { border-color: var(--primary-light); background: #eff6ff; }
+    .mode-btn h3 { color: var(--primary); font-size: 1.1rem; margin-bottom: 6px; }
+    .mode-btn p { font-size: 0.85rem; color: #475569; }
+    .sync-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 14px; margin-top: 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+    .import-box { background: #eff6ff; border: 1px solid #93c5fd; border-radius: 8px; padding: 14px; margin-top: 14px; }
+    .sync-btn { background: #15803d; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+    .sync-btn.sec { background: #0369a1; }
+    .sync-btn.purple { background: #7c3aed; }
+    .cbt-grid { display: grid; grid-template-columns: 1fr 320px; gap: 14px; height: calc(100vh - 100px); }
+    @media (max-width: 880px) {
+      .cbt-grid { grid-template-columns: 1fr; height: auto; }
+      #paletteWrapper { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; padding: 20px; }
+      #paletteWrapper.mobile-open { display: flex; justify-content: center; align-items: center; }
+      .palette-card { max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; }
+    }
+    .question-card { background: white; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; height: 100%; }
+    .q-header { background: #f1f5f9; padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .q-body { padding: 18px; flex: 1; overflow-y: auto; font-size: 1.05rem; line-height: 1.5; }
+    .q-text { font-weight: 600; margin-bottom: 18px; color: #1e293b; }
+    .options-list { display: flex; flex-direction: column; gap: 10px; }
+    .option-item { border: 1.5px solid var(--border); border-radius: 6px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.15s; background: #fff; font-size: 0.95rem; }
+    .option-item:hover { background: #f8fafc; border-color: #94a3b8; }
+    .option-item.selected { border-color: #2563eb; background: #eff6ff; font-weight: 600; }
+    .opt-circle { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid #64748b; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; flex-shrink: 0; }
+    .option-item.selected .opt-circle { background: #2563eb; color: white; border-color: #2563eb; }
+    .q-footer { background: #f8fafc; padding: 10px 14px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .btn { padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.88rem; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-purple { background: var(--purple); color: white; }
+    .btn-outline { background: white; border: 1px solid var(--border); color: #334155; }
+    .btn-danger { background: var(--danger); color: white; }
+    .palette-card { background: white; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; height: 100%; }
+    .palette-header { background: #f1f5f9; padding: 10px 14px; font-weight: 700; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    .palette-grid { padding: 12px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; overflow-y: auto; flex: 1; align-content: start; }
+    .pal-btn { aspect-ratio: 1; border-radius: 4px; border: 1px solid #cbd5e1; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #334155; position: relative; }
+    .pal-btn.current { outline: 2px solid #0f172a; outline-offset: 1px; }
+    .pal-btn.answered { background: #16a34a; color: white; border-color: #15803d; }
+    .pal-btn.unanswered { background: #dc2626; color: white; border-color: #b91c1c; }
+    .pal-btn.review { background: #7c3aed; color: white; border-color: #6d28d9; }
+    .pal-btn.review-ans { background: #7c3aed; color: white; border-color: #6d28d9; }
+    .pal-btn.review-ans::after { content: ''; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; position: absolute; bottom: 2px; right: 2px; }
+    .palette-legend { padding: 10px; border-top: 1px solid var(--border); font-size: 0.72rem; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: #fafafa; }
+    .leg-item { display: flex; align-items: center; gap: 6px; }
+    .leg-dot { width: 12px; height: 12px; border-radius: 2px; }
+    .result-container { background: white; border-radius: 8px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 18px 0; }
+    .metric-card { padding: 14px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
+    .metric-card .val { font-size: 1.8rem; font-weight: 800; margin-top: 4px; }
+    .card-right { background: #f0fdf4; border-color: #86efac; color: #166534; }
+    .card-wrong { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+    .card-marks { background: #eff6ff; border-color: #93c5fd; color: #1e40af; }
+    .card-pct { background: #faf5ff; border-color: #d8b4fe; color: #6b21a8; }
+    .wrong-item { border: 1px solid #fee2e2; background: #fff5f5; border-radius: 6px; padding: 14px; margin-bottom: 10px; font-size: 0.92rem; }
+    .wrong-item .q-title { font-weight: 700; color: #7f1d1d; margin-bottom: 6px; }
+    .wrong-item .expl { margin-top: 6px; font-size: 0.85rem; background: #fff; padding: 8px; border-radius: 4px; border-left: 3px solid #ef4444; color: #334155; }
+    .chart-box { background: white; border-radius: 8px; border: 1px solid var(--border); padding: 18px; margin-top: 14px; height: 320px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">
+      <span id="headerExamTitle">UNIVERSAL CBT EXAM</span>
+      <span class="badge-exam" id="examBadge">SET 1</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <button class="btn btn-outline" id="mobPaletteBtn" style="display:none; padding:4px 8px; font-size:0.75rem;" onclick="toggleMobilePalette()">Question Palette</button>
+      <div class="timer-box" id="timerBox">00:00</div>
+      <button class="btn btn-danger" id="submitHeaderBtn" style="display:none; padding:5px 12px;" onclick="confirmSubmitTest()">Submit Test</button>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    <div id="homeScreen" class="screen active">
+      <div class="hero-banner">
+        <h2 style="font-size:1.3rem; margin-bottom:6px;" id="bannerTitle">Universal CBT Exam Simulator</h2>
+        <p style="font-size:0.85rem; opacity:0.95;" id="bannerSubtitle">Attempt any subject test • Mobile & Samsung Tablet Ready</p>
+      </div>
+
+      <!-- New: Load Any Subject Test / PDF Question Bank -->
+      <div class="import-box">
+        <strong style="color:#1e40af; font-size:1rem;">📂 Load New Subject Test (किसी भी विषय का टेस्ट लोड करें)</strong>
+        <p style="font-size:0.82rem; color:#475569; margin: 4px 0 10px 0;">आप मुझे किसी भी विषय की PDF देकर उसका टेस्ट कोड ले सकते हैं और यहाँ अपलोड करके तुरंत नया टेस्ट दे सकते हैं।</p>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <button class="sync-btn purple" onclick="document.getElementById('testFileInput').click()">📥 Upload Subject Test (.json)</button>
+          <button class="sync-btn sec" onclick="pasteCustomTestPrompt()">📋 Paste Questions Data Directly</button>
+          <input type="file" id="testFileInput" style="display:none;" accept=".json" onchange="loadCustomTestFile(event)">
+        </div>
+      </div>
+
+      <div class="home-card" style="margin-top:14px;">
+        <h3 style="font-size:1.05rem; margin-bottom:4px;">Select Test Mode to Attempt</h3>
+        <p style="font-size:0.85rem; color:#64748b;">Marking Scheme: +1.0 Right, -0.25 Wrong</p>
+        
+        <div class="test-modes">
+          <div class="mode-btn" onclick="startTest(50, 30, 'Mode: 50 Questions')">
+            <h3>📝 Quick Set : 50 Questions</h3>
+            <p><strong>Timer:</strong> 30 Minutes</p>
+            <p style="color:#0284c7; margin-top:4px; font-weight:600;">Best for: Android Mobile Speed Drill</p>
+          </div>
+          <div class="mode-btn" onclick="startTest(100, 60, 'Mode: Full Mock')">
+            <h3>🏆 Full Set : 100 Questions</h3>
+            <p><strong>Timer:</strong> 60 Minutes</p>
+            <p style="color:#0284c7; margin-top:4px; font-weight:600;">Best for: Samsung Tablet Simulation</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sync-box">
+        <div>
+          <strong style="color:#14532d;">🔄 Sync Scores Across Tablet & Mobile</strong>
+          <p style="font-size:0.8rem; color:#166534;">Export your history on one device and import on another to keep progress united.</p>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="sync-btn" onclick="exportTestHistory()">Backup Scores (Export)</button>
+          <button class="sync-btn sec" onclick="document.getElementById('importInput').click()">Sync Scores (Import)</button>
+          <input type="file" id="importInput" style="display:none;" accept=".json" onchange="importTestHistory(event)">
+        </div>
+      </div>
+
+      <div class="home-card" style="margin-top:16px;">
+        <h3 style="font-size:1.05rem; margin-bottom:2px;">📈 Performance Improvement Trajectory</h3>
+        <p style="font-size:0.8rem; color:#64748b;">Visual trend of your scores and percentages across multiple attempts</p>
+        <div class="chart-box">
+          <canvas id="historyChart"></canvas>
+        </div>
+        <div style="margin-top:14px; overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;">
+            <thead>
+              <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+                <th style="padding:8px;">#</th>
+                <th style="padding:8px;">Date & Time</th>
+                <th style="padding:8px;">Subject/Test</th>
+                <th style="padding:8px;">Right</th>
+                <th style="padding:8px;">Wrong</th>
+                <th style="padding:8px;">Net Marks</th>
+                <th style="padding:8px;">Accuracy %</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="examScreen" class="screen">
+      <div class="cbt-grid">
+        <div class="question-card">
+          <div class="q-header">
+            <span style="font-weight:700; color:#1e293b;" id="qNumberDisplay">Question 1</span>
+            <span style="font-size:0.8rem; background:#e2e8f0; padding:2px 8px; border-radius:4px;" id="qTopicDisplay">General</span>
+          </div>
+          <div class="q-body">
+            <div class="q-text" id="qText">Loading question...</div>
+            <div class="options-list" id="optionsContainer"></div>
+          </div>
+          <div class="q-footer">
+            <div>
+              <button class="btn btn-purple" onclick="markForReview()">Mark for Review & Next</button>
+              <button class="btn btn-outline" onclick="clearAnswer()">Clear Response</button>
+            </div>
+            <div>
+              <button class="btn btn-outline" onclick="prevQuestion()">Previous</button>
+              <button class="btn btn-primary" onclick="saveAndNext()">Save & Next</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="paletteWrapper">
+          <div class="palette-card">
+            <div class="palette-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Question Palette</span>
+              <button onclick="toggleMobilePalette()" id="closePaletteBtn" style="display:none; border:none; background:none; font-weight:bold; font-size:1.1rem; cursor:pointer;">✕</button>
+            </div>
+            <div class="palette-grid" id="paletteGrid"></div>
+            <div class="palette-legend">
+              <div class="leg-item"><div class="leg-dot" style="background:#16a34a;"></div> Answered</div>
+              <div class="leg-item"><div class="leg-dot" style="background:#dc2626;"></div> Not Answered</div>
+              <div class="leg-item"><div class="leg-dot" style="background:#7c3aed;"></div> Marked Review</div>
+              <div class="leg-item"><div class="leg-dot" style="background:#f1f5f9; border:1px solid #cbd5e1;"></div> Not Visited</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultScreen" class="screen">
+      <div class="result-container">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:1px solid #e2e8f0; padding-bottom:12px;">
+          <div>
+            <h2 style="color:#0f172a; font-size:1.3rem;">Performance Evaluation</h2>
+            <p style="font-size:0.85rem; color:#64748b;" id="resultMeta">Attempted on: --</p>
+          </div>
+          <button class="btn btn-primary" onclick="showHomeScreen()">Back to Dashboard</button>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card card-right">
+            <div style="font-size:0.85rem; font-weight:600;">1. Right Questions</div>
+            <div class="val" id="resRight">0</div>
+          </div>
+          <div class="metric-card card-wrong">
+            <div style="font-size:0.85rem; font-weight:600;">2. Wrong Questions</div>
+            <div class="val" id="resWrong">0</div>
+          </div>
+          <div class="metric-card card-marks">
+            <div style="font-size:0.85rem; font-weight:600;">3. Marks (with -0.25)</div>
+            <div class="val" id="resMarks">0.00</div>
+          </div>
+          <div class="metric-card card-pct">
+            <div style="font-size:0.85rem; font-weight:600;">4. Overall Performance</div>
+            <div class="val" id="resPct">0%</div>
+          </div>
+        </div>
+
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px; margin-bottom:18px;">
+          <h3 style="font-size:1.05rem; margin-bottom:8px; color:#1e293b;">💡 Diagnostic Topic Analysis & Tips</h3>
+          <div id="smartSuggestions" style="font-size:0.9rem; line-height:1.6; color:#334155;"></div>
+        </div>
+
+        <div>
+          <h3 style="font-size:1.05rem; margin-bottom:10px; color:#991b1b;">5. List of Incorrect Questions (Review)</h3>
+          <div id="wrongQuestionsList"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Initial Default Question Bank (Agronomy PYQ)
+    let CURRENT_SUBJECT = "Agronomy PYQ";
+    let ACTIVE_QUESTION_BANK = [
+      {
+        q: "What is the most critical stage for irrigation in Wheat?",
+        options: ["Crown Root Initiation (CRI) stage", "Jointing stage", "Booting stage", "Milking stage"],
+        ans: 0,
+        topic: "Irrigation & Water",
+        expl: "Crown Root Initiation (CRI) occurring at 20-25 DAS is the most critical stage for irrigation in wheat."
+      },
+      {
+        q: "Shifting cultivation (Slash and Burn) is locally known as 'Dahiya' or 'Bewar' in which Indian state?",
+        options: ["Odisha", "Madhya Pradesh", "Jharkhand", "Assam"],
+        ans: 1,
+        topic: "Cropping Systems",
+        expl: "In Madhya Pradesh, shifting cultivation is called Dahiya or Bewar. In Odisha/Andhra it is Podu."
+      },
+      {
+        q: "The National Bureau of Plant Genetic Resources (NBPGR) is located at:",
+        options: ["Hyderabad", "New Delhi", "Karnal", "Bengaluru"],
+        ans: 1,
+        topic: "Institutes",
+        expl: "NBPGR is located in New Delhi and regulates germplasm import through Single Window System."
+      },
+      {
+        q: "Which irrigation system provides the highest Water Use Efficiency (90-95%)?",
+        options: ["Sprinkler irrigation", "Furrow irrigation", "Drip (Trickle) irrigation", "Check-basin irrigation"],
+        ans: 2,
+        topic: "Irrigation & Water",
+        expl: "Drip irrigation achieves 90-95% WUE and saves 40-70% water under scarce water conditions."
+      },
+      {
+        q: "Paraquat is a non-selective contact herbicide belonging to which chemical class?",
+        options: ["Sulfonylurea", "Bipyridylium", "Triazine", "Dinitroaniline"],
+        ans: 1,
+        topic: "Weed Science",
+        expl: "Paraquat belongs to the Bipyridylium group; it acts as a PS-I inhibitor and generates toxic H2O2."
+      },
+      {
+        q: "ICRISAT was established in 1972 with its headquarters at:",
+        options: ["Patancheru, Hyderabad", "Varanasi, UP", "Jodhpur, Rajasthan", "New Delhi"],
+        ans: 0,
+        topic: "Institutes",
+        expl: "ICRISAT is headquartered at Patancheru, Hyderabad."
+      },
+      {
+        q: "In the Dapog method of rice nursery raising, seedlings are ready for transplanting within:",
+        options: ["20-25 days", "11-14 days", "30-35 days", "5-7 days"],
+        ans: 1,
+        topic: "Cereals & Millets",
+        expl: "Dapog nursery seedlings (developed in Philippines) are ready in 11-14 days without soil contact."
+      },
+      {
+        q: "Which bio-control agent is most widely used against Parthenium hysterophorus (Congress grass)?",
+        options: ["Neochetina eichhorniae", "Zygogramma bicolorata", "Dactylopius tomentosus", "Cyrtobagous salviniae"],
+        ans: 1,
+        topic: "Weed Science",
+        expl: "Zygogramma bicolorata (Mexican beetle) is the bio-control agent used against Parthenium."
+      },
+      {
+        q: "Phalaris minor is a classic mimicry weed found in which crop?",
+        options: ["Paddy", "Wheat", "Mustard", "Chickpea"],
+        ans: 1,
+        topic: "Weed Science",
+        expl: "Phalaris minor (Gulli danda) is a major mimicry weed in wheat."
+      },
+      {
+        q: "Nipping (or Topping) in Chickpea (Gram) is done at 30-40 DAS to:",
+        options: ["Promote root elongation", "Suppress apical dominance and stimulate lateral branching", "Prevent flowering", "Avoid weed competition"],
+        ans: 1,
+        topic: "Pulses & Oilseeds",
+        expl: "Nipping removes terminal buds to break apical dominance and promote branching for higher yield."
+      }
+    ];
+
+    // Auto-expand default bank to 50/100 items if needed
+    while (ACTIVE_QUESTION_BANK.length < 50) {
+      ACTIVE_QUESTION_BANK.push(...ACTIVE_QUESTION_BANK.slice(0, 10).map((x, i) => ({
+        ...x,
+        q: `[Q-${ACTIVE_QUESTION_BANK.length + 1}] ${x.q}`
+      })));
+    }
+
+    let currentTestMode = 'Mode: 50 Questions';
+    let timerTotalSeconds = 30 * 60;
+    let timerRemaining = timerTotalSeconds;
+    let timerInterval = null;
+    let currentQIndex = 0;
+    let testQuestions = [];
+    let userAnswers = {};
+    const STORAGE_KEY = 'universal_cbt_user_history_v1';
+
+    function getStoredHistory() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return window.__memHistory || [];
+      }
+    }
+
+    function saveAttemptToStorage(record) {
+      let history = getStoredHistory();
+      history.push(record);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+      } catch (e) {}
+      window.__memHistory = history;
+      renderHistoryAnalytics();
+    }
+
+    // Dynamic Subject Test Import
+    function loadCustomTestFile(evt) {
+      const file = evt.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.subject && Array.isArray(data.questions)) {
+            CURRENT_SUBJECT = data.subject;
+            ACTIVE_QUESTION_BANK = data.questions;
+            updateSubjectDisplays();
+            alert(`🎉 Success! Loaded "${CURRENT_SUBJECT}" with ${ACTIVE_QUESTION_BANK.length} questions!`);
+          } else {
+            alert('Invalid test format. File must contain "subject" and "questions".');
+          }
+        } catch (err) {
+          alert('Could not parse test file. Make sure it is valid JSON.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function pasteCustomTestPrompt() {
+      const raw = prompt("Paste your Test JSON data here (Format: {\"subject\":\"...\", \"questions\":[...]}) :");
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        if (data.subject && Array.isArray(data.questions)) {
+          CURRENT_SUBJECT = data.subject;
+          ACTIVE_QUESTION_BANK = data.questions;
+          updateSubjectDisplays();
+          alert(`🎉 Success! Loaded "${CURRENT_SUBJECT}" with ${ACTIVE_QUESTION_BANK.length} questions!`);
+        } else {
+          alert('Invalid format.');
+        }
+      } catch(e) {
+        alert('Invalid JSON data.');
+      }
+    }
+
+    function updateSubjectDisplays() {
+      document.getElementById('headerExamTitle').textContent = CURRENT_SUBJECT.toUpperCase();
+      document.getElementById('bannerTitle').textContent = `${CURRENT_SUBJECT} - CBT Simulator`;
+    }
+
+    function startTest(count, minutes, modeName) {
+      currentTestMode = `${CURRENT_SUBJECT} (${count}Q)`;
+      const actualCount = Math.min(count, ACTIVE_QUESTION_BANK.length);
+      testQuestions = ACTIVE_QUESTION_BANK.slice(0, actualCount);
+
+      timerTotalSeconds = minutes * 60;
+      timerRemaining = timerTotalSeconds;
+      currentQIndex = 0;
+      userAnswers = {};
+
+      for (let i = 0; i < testQuestions.length; i++) {
+        userAnswers[i] = { selectedOpt: null, status: 'not-visited' };
+      }
+      userAnswers[0].status = 'unanswered';
+
+      document.getElementById('examBadge').textContent = modeName;
+      document.getElementById('homeScreen').classList.remove('active');
+      document.getElementById('resultScreen').classList.remove('active');
+      document.getElementById('examScreen').classList.add('active');
+      document.getElementById('submitHeaderBtn').style.display = 'inline-block';
+      if (window.innerWidth <= 880) {
+        document.getElementById('mobPaletteBtn').style.display = 'inline-block';
+      }
+
+      renderPaletteGrid();
+      loadQuestion(0);
+      startTimer();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        timerRemaining--;
+        updateTimerDisplay();
+        if (timerRemaining <= 0) {
+          clearInterval(timerInterval);
+          alert('Time is up! Submitting your test automatically.');
+          calculateAndShowResults();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timerRemaining / 60);
+      const secs = timerRemaining % 60;
+      const box = document.getElementById('timerBox');
+      box.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      if (timerRemaining < 300) box.classList.add('urgent');
+      else box.classList.remove('urgent');
+    }
+
+    function loadQuestion(index) {
+      currentQIndex = index;
+      const qData = testQuestions[index];
+      if (userAnswers[index].status === 'not-visited') userAnswers[index].status = 'unanswered';
+
+      document.getElementById('qNumberDisplay').textContent = `Question ${index + 1} of ${testQuestions.length}`;
+      document.getElementById('qTopicDisplay').textContent = qData.topic || "General";
+      document.getElementById('qText').textContent = `${index + 1}. ${qData.q}`;
+
+      const optContainer = document.getElementById('optionsContainer');
+      optContainer.innerHTML = '';
+
+      qData.options.forEach((optText, oIdx) => {
+        const item = document.createElement('div');
+        const isSelected = userAnswers[index].selectedOpt === oIdx;
+        item.className = `option-item ${isSelected ? 'selected' : ''}`;
+        item.onclick = () => selectOption(oIdx);
+        item.innerHTML = `
+          <div class="opt-circle">${String.fromCharCode(65 + oIdx)}</div>
+          <div>${optText}</div>
+        `;
+        optContainer.appendChild(item);
+      });
+      renderPaletteGrid();
+    }
+
+    function selectOption(oIdx) {
+      userAnswers[currentQIndex].selectedOpt = oIdx;
+      loadQuestion(currentQIndex);
+    }
+
+    function clearAnswer() {
+      userAnswers[currentQIndex].selectedOpt = null;
+      userAnswers[currentQIndex].status = 'unanswered';
+      loadQuestion(currentQIndex);
+    }
+
+    function saveAndNext() {
+      userAnswers[currentQIndex].status = (userAnswers[currentQIndex].selectedOpt !== null) ? 'answered' : 'unanswered';
+      if (currentQIndex < testQuestions.length - 1) loadQuestion(currentQIndex + 1);
+      else renderPaletteGrid();
+    }
+
+    function markForReview() {
+      userAnswers[currentQIndex].status = (userAnswers[currentQIndex].selectedOpt !== null) ? 'review-ans' : 'review';
+      if (currentQIndex < testQuestions.length - 1) loadQuestion(currentQIndex + 1);
+      else renderPaletteGrid();
+    }
+
+    function prevQuestion() {
+      if (currentQIndex > 0) loadQuestion(currentQIndex - 1);
+    }
+
+    function renderPaletteGrid() {
+      const grid = document.getElementById('paletteGrid');
+      grid.innerHTML = '';
+      testQuestions.forEach((_, idx) => {
+        const btn = document.createElement('button');
+        const st = userAnswers[idx].status;
+        btn.className = `pal-btn ${st} ${idx === currentQIndex ? 'current' : ''}`;
+        btn.textContent = idx + 1;
+        btn.onclick = () => {
+          loadQuestion(idx);
+          if (window.innerWidth <= 880) toggleMobilePalette();
+        };
+        grid.appendChild(btn);
+      });
+    }
+
+    function toggleMobilePalette() {
+      const pWrap = document.getElementById('paletteWrapper');
+      pWrap.classList.toggle('mobile-open');
+      const closeBtn = document.getElementById('closePaletteBtn');
+      closeBtn.style.display = pWrap.classList.contains('mobile-open') ? 'block' : 'none';
+    }
+
+    function confirmSubmitTest() {
+      let ansCount = 0;
+      Object.values(userAnswers).forEach(u => { if (u.selectedOpt !== null) ansCount++; });
+      const conf = confirm(`Are you sure you want to submit?\nAttempted: ${ansCount} of ${testQuestions.length}`);
+      if (conf) {
+        clearInterval(timerInterval);
+        calculateAndShowResults();
+      }
+    }
+
+    function calculateAndShowResults() {
+      let right = 0, wrong = 0, unattempted =
