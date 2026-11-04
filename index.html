@@ -67,31 +67,25 @@
   <div class="container" id="homeView">
     <div class="card" style="border-left: 4px solid var(--success);">
       <h3 style="color:var(--success); margin-bottom:4px;">🎯 CG Sericulture Field Officer & State Exams Ready</h3>
-      <p style="margin:0;">इस सिम्युलेटर में <b>CG Sericulture Field Officer Master Question Bank</b> के 50 प्रामाणिक प्रश्न अंतर्निहित हैं। आप सीधे मॉक शुरू कर सकते हैं या Gemini से तैयार कस्टम JSON लोड कर सकते हैं।</p>
+      <p style="margin:0;">इस सिम्युलेटर में <b>CG Sericulture Field Officer Master Question Bank</b> के बहुप्रचलित 50 प्रश्न पहले से अंतर्निहित हैं। आप सीधे मॉक शुरू कर सकते हैं या Gemini से तैयार अपना कोई भी कस्टम JSON लोड कर सकते हैं।</p>
     </div>
 
     <div class="card">
       <h3>🏆 Official Sericulture Practice Mock</h3>
-      <p>छत्तीसगढ़ रेशम प्रभाग, तसर कीटपालन (Raily/Daba), पोषक वृक्ष एवं कीट विज्ञान पर आधारित टेस्ट:</p>
+      <p>छत्तीसगढ़ रेशम प्रभाग, तसर कीटपालन (Raily/Daba), पादप कार्यिकी एवं कीट विज्ञान पर आधारित 50 प्रश्नों का आधिकारिक टेस्ट:</p>
       <button class="btn btn-green" type="button" onclick="startBuiltInSericultureMock()">🚀 Start Sericulture Master Mock (50 MCQs - 30 Min)</button>
     </div>
 
     <div class="card">
       <h3>📥 Paste Custom Gemini Questions (Zero-Key Mode)</h3>
       <label style="font-size:12px; font-weight:600; color:var(--muted);">परीक्षार्थी का नाम (Candidate Name for PDF Report):</label>
-      <input type="text" id="candidateNameInput" placeholder="अपना नाम लिखें (उदा. Vishal Tripathi)" value="Vishal Tripathi">
+      <input type="text" id="candidateNameInput" placeholder="अपना नाम लिखें" value="Vishal Tripathi">
 
       <label style="font-size:12px; font-weight:600; color:var(--muted);">विषय नाम / शीर्षक (Test Title):</label>
       <input type="text" id="testTitleInput" placeholder="सस्य विज्ञान / CG Sericulture Mock Test">
 
-      <label style="font-size:12px; font-weight:600; color:var(--muted);">Gemini द्वारा तैयार JSON कोड यहाँ पेस्ट करें:</label>
-      <textarea id="jsonInput" rows="7" placeholder='[
-  {
-    "question": "प्रश्न यहाँ लिखें?",
-    "options": ["विकल्प A", "विकल्प B", "विकल्प C", "विकल्प D"],
-    "answer": 0
-  }
-]'></textarea>
+      <label style="font-size:12px; font-weight:600; color:var(--muted);">अन्य कोई JSON कोड यहाँ पेस्ट करें:</label>
+      <textarea id="jsonInput" rows="5" placeholder='[{"question":"...","options":["A","B","C","D"],"answer":0}]'></textarea>
 
       <button class="btn" type="button" onclick="loadQuestionsFromJSON()">▶️ Start Custom Pasted Exam</button>
       <div id="status"></div>
@@ -167,58 +161,57 @@
   </div>
 
   <script>
-    // Embedded 50 Master Sericulture MCQs from the official question bank
     const builtInSericultureMCQs = [
-      {"question":"1. छत्तीसगढ़ का भारत में उष्णकटिबंधीय तसर (कोसा) कच्चे रेशम उत्पादन में कौन सा स्थान है?","options":["प्रथम स्थान","द्वितीय स्थान (झारखंड के बाद)","तृतीय स्थान","पंचम स्थान"],"answer":1},
-      {"question":"2. छत्तीसगढ़ में रेशम संचालनालय (Directorate of Sericulture) किस विभाग के अंतर्गत कार्यरत है?","options":["कृषि विकास विभाग","ग्रामोद्योग विभाग (Department of Rural Industries)","वन एवं जलवायु परिवर्तन विभाग","पंचायत एवं ग्रामीण विकास"],"answer":1},
-      {"question":"3. छत्तीसगढ़ में तसर रेशमकीट हेतु बुनियादी बीज प्रगुणन एवं प्रशिक्षण केंद्र (BSM&TC) कहाँ स्थित है?","options":["बोइरदादर (रायगढ़)","जगदलपुर (बस्तर)","अंबिकापुर (सरगुजा)","चांपा (जांजगीर)"],"answer":0},
-      {"question":"4. देश के कुल उष्णकटिबंधीय तसर कच्चे रेशम उत्पादन में छत्तीसगढ़ का अनुमानित योगदान कितना है?","options":["5% से 10%","20% से 25%","50% से अधिक","75%"],"answer":1},
-      {"question":"5. भारत के कुल प्राकृतिक साल-आधारित जंगली 'रेली' (Raily) कोसा उत्पादन में छत्तीसगढ़ का कितना हिस्सा है?","options":["25% से कम","40%","लगभग 60%","85% से अधिक (प्रमुखतः बस्तर)"],"answer":3},
-      {"question":"6. भारत का कौन सा राज्य कुल कच्चे रेशम तथा शहतूती (Mulberry) रेशम उत्पादन में प्रथम स्थान रखता है?","options":["कर्नाटक","आंध्र प्रदेश","असम","पश्चिम बंगाल"],"answer":0},
-      {"question":"7. केंद्रीय रेशम बोर्ड (Central Silk Board - CSB) का संवैधानिक मुख्यालय कहाँ स्थापित है?","options":["नई दिल्ली","बेंगलुरु (कर्नाटक)","रांची (झारखंड)","मैसूरू"],"answer":1},
-      {"question":"8. एशिया की सबसे बड़ी वाणिज्यिक कोकून व्यापार मंडी कहाँ स्थित है?","options":["रामनगरम (कर्नाटक)","चांपा (छत्तीसगढ़)","भागलपुर (बिहार)","सुआलकुची (असम)"],"answer":0},
-      {"question":"9. किस भारतीय राज्य के पास स्वर्णिम मूंगा (Muga) रेशम उत्पादन का विशेष वैश्विक भौगोलिक एकाधिकार (GI) है?","options":["असम","मणिपुर","मेघालय","छत्तीसगढ़"],"answer":0},
-      {"question":"10. छत्तीसगढ़ में सर्वाधिक जंगली साल-आधारित रेली तसर कोकून किस संभाग से प्राप्त होते हैं?","options":["बस्तर संभाग","सरगुजा संभाग","बिलासपुर संभाग","रायपुर संभाग"],"answer":0},
-      {"question":"11. भारत में कुल एरी (Eri) रेशम उत्पादन का 70% से अधिक हिस्सा किस राज्य से आता है?","options":["असम","नागालैंड","अरुणाचल प्रदेश","ओडिशा"],"answer":0},
-      {"question":"12. विश्व में वाणिज्यिक रूप से कच्चे रेशम उत्पादन में भारत का कौन सा स्थान है?","options":["प्रथम","द्वितीय (चीन के बाद) एवं उपभोग में प्रथम","तृतीय","चतुर्थ"],"answer":1},
-      {"question":"13. केंद्रीय तसर रेशमकीट बीज स्टेशन (CTSSS) केंद्रीय रेशम बोर्ड द्वारा छत्तीसगढ़ में कहाँ स्थापित है?","options":["लाखा (रायगढ़)","कुनकुरी (जशपुर)","कांकेर","कोण्डागांव"],"answer":0},
-      {"question":"14. उष्णकटिबंधीय तसर कीट (Antheraea mylitta) का सही कीटवैज्ञानिक गण (Order) एवं कुल (Family) क्या है?","options":["Lepidoptera : Saturniidae","Lepidoptera : Bombycidae","Coleoptera : Scarabaeidae","Diptera : Tachinidae"],"answer":0},
-      {"question":"15. शहतूती रेशमकीट (Bombyx mori) किस कीटवैज्ञानिक कुल के अंतर्गत आता है?","options":["Bombycidae","Saturniidae","Noctuidae","Sphingidae"],"answer":0},
-      {"question":"16. वयस्क तसर पतंगे (Antheraea mylitta) के नर में किस प्रकार का शृंगिका (Antenna) पाया जाता है?","options":["बायपेक्टिनेट (Bipectinate / पंखनुमा)","फिलीफॉर्म (Filiform)","सीटेट (Setaceous)","कैपिटेट (Capitate)"],"answer":0},
-      {"question":"17. शहतूती रेशमकीट (Bombyx mori) की द्विगुणित (2n) गुणसूत्र संख्या कितनी होती है?","options":["2n = 28","2n = 56","2n = 62","2n = 46"],"answer":1},
-      {"question":"18. उष्णकटिबंधीय तसर कीट (Antheraea mylitta) की द्विगुणित (2n) गुणसूत्र संख्या कितनी है?","options":["2n = 56","2n = 62","2n = 31","2n = 14"],"answer":1},
-      {"question":"19. रेशमकीट की इल्ली (Caterpillar) में पाई जाने वाली रेशम ग्रंथियाँ किसका विकासीय रूपांतरण हैं?","options":["लेबियल ग्रंथियाँ / लार ग्रंथियाँ (Labial/Salivary glands)","मैक्सिलरी ग्रंथियाँ","मैलपिघियन नलिकाएँ","जठरीय ग्रंथियाँ"],"answer":0},
-      {"question":"20. रेशमकीट (Bombyx mori) में लिंग निर्धारण का गुणसूत्रीय तंत्र क्या है?","options":["मादा ZW : नर ZZ","मादा XX : नर XY","मादा ZZ : नर ZW","अगुणित-द्विगुणित तंत्र"],"answer":0},
-      {"question":"21. पूर्ण विकसित रेशमकीट लार्वा का उदर (Abdomen) कितने खंडों से मिलकर बना होता है?","options":["8 खंड","10 खंड","11 खंड","12 खंड"],"answer":1},
-      {"question":"22. रेशमकीट कैटरपिलर में पूंछ का सींग (Caudal Horn) किस उदर खंड के पृष्ठ भाग पर स्थित होता है?","options":["5वें खंड","8वें उदर खंड पर","10वें खंड","तीसरे वक्षीय खंड"],"answer":1},
-      {"question":"23. रेशमकीट के कताई अंग (Spinneret) जिसके माध्यम से रेशम धागा बाहर निकलता है, कहाँ स्थित होता है?","options":["लेबियम (निचले होंठ) पर","मैक्सिला पर","मैंडिबल पर","लेब्रम पर"],"answer":0},
-      {"question":"24. छत्तीसगढ़ में उष्णकटिबंधीय तसर कीट के प्राथमिक पोषक वृक्ष कौन से माने जाते हैं?","options":["साजा / असन (Terminalia tomentosa) एवं अर्जुन (Terminalia arjuna)","शहतूत एवं अरंडी","जामुन एवं आम","गूलर एवं बरगद"],"answer":0},
-      {"question":"25. अर्जुन (Terminalia arjuna) और असन (T. tomentosa) किस वानस्पतिक कुल से संबंधित हैं?","options":["Combretaceae","Moraceae","Euphorbiaceae","Dipterocarpaceae"],"answer":0},
-      {"question":"26. बस्तर की प्राकृतिक जंगली रेली तसर प्रजाति का मुख्य प्राकृतिक पोषक वृक्ष साल (Shorea robusta) किस कुल का है?","options":["Dipterocarpaceae","Combretaceae","Fabaceae","Malvaceae"],"answer":0},
-      {"question":"27. छत्तीसगढ़ के स्थानीय बोली में अर्जुन (Terminalia arjuna) को क्या कहा जाता है?","options":["कहुआ / कोहा","साजा","धौड़ा","साल"],"answer":0},
-      {"question":"28. एरी रेशमकीट (Samia ricini) का मुख्य पोषक पौधा कौन सा है जिसकी खेती आदिवासी करते हैं?","options":["अरंडी (Ricinus communis, Euphorbiaceae)","शहतूत","असन","सोम"],"answer":0},
-      {"question":"29. शहतूत (Morus alba) का खाने योग्य फल वानस्पतिक रूप से क्या कहलाता है?","options":["सोरोसिस (Sorosis)","ड्रूप (Drupe)","बेरी (Berry)","हेस्पेरिडियम"],"answer":0},
-      {"question":"30. सीएसआरटीआई मैसूरू द्वारा विकसित सिंचित क्षेत्रों हेतु उच्च उपज देने वाली लोकप्रिय शहतूत किस्म कौन सी है?","options":["विक्टरी-1 (V1)","कनवा-2 (K2)","S-36","AR-12"],"answer":0},
-      {"question":"31. छत्तीसगढ़ में बाहरी तसर कीटपालन हेतु अनुकूलतम तापमान एवं सापेक्षिक आर्द्रता क्या है?","options":["25°C से 32°C एवं 70% से 85% RH","15°C से 20°C एवं 50% RH","38°C से 42°C एवं 40% RH","20°C से 25°C एवं 95% RH"],"answer":0},
-      {"question":"32. रेशमकीट की छोटी अवस्था (चावकी / Chawki) पालन हेतु आदर्श तापमान एवं आर्द्रता कितनी है?","options":["27°C से 28°C एवं 85% से 90% RH","20°C से 22°C एवं 60% RH","32°C से 35°C एवं 50% RH","18°C से 20°C एवं 70% RH"],"answer":0},
-      {"question":"33. छत्तीसगढ़ के रेशम उत्पादन में किस रेशम का अंश 90% से भी अधिक है?","options":["उष्णकटिबंधीय तसर (कोसा) रेशम","शहतूती रेशम","एरी रेशम","मूंगा रेशम"],"answer":0},
-      {"question":"34. विश्व का एकमात्र देश कौन सा है जो व्यावसायिक रूप से सभी पाँचों प्रकार के प्राकृतिक रेशम उत्पादित करता है?","options":["भारत","चीन","जापान","ब्राजील"],"answer":0},
-      {"question":"35. एरी रेशम को 'अहिंसा रेशम' (Ahimsa Silk) क्यों कहा जाता है?","options":["क्योंकि इसमें कताई/प्यूपा को मारे बिना पतंगा प्राकृतिक रूप से बाहर निकल जाता है","क्योंकि यह शाकाहारी कपड़े जैसा दिखता है","क्योंकि इसकी कताई केवल हाथ से होती है","यह किसी कीड़े से नहीं बनता"],"answer":0},
-      {"question":"36. छत्तीसगढ़ का कौन सा शहर 'कोसा रेशम राजधानी' (Kosa Silk Capital / Silk City) के रूप में विख्यात है?","options":["चांपा (जांजगीर-चांपा)","बिलासपुर","रायगढ़","जगदलपुर"],"answer":0},
-      {"question":"37. छत्तीसगढ़ में कोसा बुनाई एवं कताई में पारंपरिक रूप से कौन सा समुदाय संलग्न है?","options":["देवांगन (कोष्ठा) समुदाय","गोंड समुदाय","हलबा समुदाय","कमर समुदाय"],"answer":0},
-      {"question":"38. तसर रेशम उत्पादन में 100 डीएफएल (DFL) से औसतन कितना व्यावसायिक कोकून उत्पादन प्राप्त होता है?","options":["6,000 से 8,000 कोकून (60-80 प्रति DFL)","1,000 कोकून","15,000 कोकून","500 कोकून"],"answer":0},
-      {"question":"39. उष्णकटिबंधीय तसर कोकून का औसत रेंडिटा (Renditta - 1 किग्रा रेशम हेतु आवश्यक कोकून का वजन) कितना होता है?","options":["12 से 14 किग्रा (लगभग 1,000-1,200 कोकून)","5 से 6 किग्रा","25 से 30 किग्रा","2 से 3 किग्रा"],"answer":0},
-      {"question":"40. छत्तीसगढ़ की पारंपरिक कोकून गणना तालिका में एक 'कहान' (Kahan) कितने कोकून के बराबर होता है?","options":["1,280 कोकून (16 पोन = 320 गंडा)","80 कोकून","400 कोकून","1,000 कोकून"],"answer":0},
-      {"question":"41. पारंपरिक कोकून व्यापार में 1 'पोन' (Pon) एवं 1 'गंडा' (Ganda) का मान क्रमशः कितना होता है?","options":["पोन = 80 कोकून, गंडा = 4 कोकून","पोन = 100 कोकून, गंडा = 10 कोकून","पोन = 40 कोकून, गंडा = 2 कोकून","पोन = 120 कोकून, गंडा = 6 कोकून"],"answer":0},
-      {"question":"42. रेशम तंतु (Silk Filament) के आंतरिक कोर का निर्माण करने वाला मुख्य संरचनात्मक रेशेदार प्रोटीन कौन सा है?","options":["फाइब्रोइन (Fibroin ~75-80%)","सेरिसिन (Sericin)","केराटिन","कोलेजन"],"answer":0},
-      {"question":"43. तसर रेशम का प्राकृतिक रंग भूरा-स्वर्णिम (Brownish Golden) किसके संचय के कारण होता है?","options":["पोषक पत्तियों से अवशोषित टैनिन पिगमेंट (Tannin pigments)","क्लोरोफिल","मेलेनिन","आयरन ऑक्साइड"],"answer":0},
-      {"question":"44. रेशम ग्रंथि का कौन सा विशिष्ट भाग मुख्य प्रोटीन फाइब्रोइन (Fibroin) का संश्लेषण करता है?","options":["पश्च रेशम ग्रंथि (Posterior Silk Gland - PSG)","मध्य रेशम ग्रंथि (Middle Silk Gland - MSG)","अग्र रेशम ग्रंथि","फिलिप्पी ग्रंथि"],"answer":0},
-      {"question":"45. रेशम ग्रंथि का मध्य भाग (MSG) किस गोंदनुमा सुरक्षात्मक प्रोटीन का स्राव करता है?","options":["सेरिसिन (Sericin)","फाइब्रोइन","एल्ब्यूमिन","ग्लोब्युलिन"],"answer":0},
-      {"question":"46. बस्तर के सघन साल वनों में पाई जाने वाली प्रसिद्ध जंगली तसर ईको-रेस कौन सी है?","options":["रेली (Raily)","डाबा (Daba)","मोडाल (Modal)","सुकिंदा (Sukinda)"],"answer":0},
-      {"question":"47. छत्तीसगढ़ के किसानों द्वारा ब्लॉक वृक्षारोपण में सबसे व्यापक रूप से पाली जाने वाली व्यावसायिक तसर रेस कौन सी है?","options":["डाबा (Daba)","रेली","सुआलकुची","भंडारा"],"answer":0},
-      {"question":"48. रेशमकीट में घातक 'पेब्रिन' (Pebrine) रोग किस प्रोटोजोअन परजीवी के कारण होता है?","options":["नोसेमा बॉम्बिसिस (Nosema bombycis)","ब्युवेरिया बेसियाना","न्यूक्लियर पॉलीहेड्रोसिस वायरस","बैसिलस थुरिंजिएंसिस"],"answer":0},
-      {"question":"49. पेब्रिन रोग के पूर्ण उन्मूलन हेतु लुई पाश्चर द्वारा कौन सी नैदानिक विधि विकसित की गई थी?","options":["मदर मोथ माइक्रोस्कोपिक परीक्षण (Mother Moth Examination)","हॉट वाटर स्टिफलिंग","फॉर्मेलिन स्प्रे","यूजी ट्रैप"],"answer":0},
-      {"question":"50. केंद्रीय तसर अनुसंधान एवं प्रशिक्षण संस्थान (CTR&TI) कहाँ स्थित है?","options":["रांची (झारखंड)","मैसूरू (कर्नाटक)","बेंगलुरु","जोरहाट (असम)"],"answer":0}
+      {"question":"1. भारत में उष्णकटिबंधीय तसर (कोसा) कच्चे रेशम के कुल उत्पादन में छत्तीसगढ़ राज्य का कौन सा स्थान है?","options":["प्रथम स्थान","द्वितीय स्थान","तृतीय स्थान","चतुर्थ स्थान"],"answer":1},
+      {"question":"2. छत्तीसगढ़ शासन में रेशम संचालनालय (Directorate of Sericulture) किस विभाग के अंतर्गत कार्यरत है?","options":["कृषि एवं किसान कल्याण विभाग","वन एवं जलवायु परिवर्तन विभाग","ग्रामीण उद्योग विभाग","पंचायत एवं ग्रामीण विकास विभाग"],"answer":2},
+      {"question":"3. छत्तीसगढ़ में तसर रेशमकीट हेतु बुनियादी बीज प्रगुणन एवं प्रशिक्षण केंद्र (BSM&TC) कहाँ स्थित है?","options":["जगदलपुर (बस्तर)","बोईरदादर (रायगढ़)","चांपा (जांजगीर-चांपा)","अंबिकापुर (सरगुजा)"],"answer":1},
+      {"question":"4. छत्तीसगढ़ भारत के कुल प्राकृतिक साल-आधारित 'रेली' (Raily) कोकून उत्पादन का लगभग कितना प्रतिशत योगदान देता है?","options":["50% से अधिक","65% से अधिक","75% से अधिक","85% से अधिक"],"answer":3},
+      {"question":"5. भारत का कौन सा राज्य कुल कच्चे रेशम तथा शहतूती रेशम के उत्पादन में प्रथम स्थान पर है?","options":["आंध्र प्रदेश","कर्नाटक","पश्चिम बंगाल","तमिलनाडु"],"answer":1},
+      {"question":"6. भारत में उष्णकटिबंधीय तसर रेशम के उत्पादन में 65% से अधिक योगदान के साथ कौन सा राज्य शीर्ष पर है?","options":["छत्तीसगढ़","झारखंड","ओडिशा","मध्य प्रदेश"],"answer":1},
+      {"question":"7. केंद्रीय रेशम बोर्ड (Central Silk Board - CSB) का सांविधिक मुख्यालय कहाँ स्थापित है?","options":["नई दिल्ली","मैसूर","बेंगलुरु","रांची"],"answer":2},
+      {"question":"8. एशिया का सबसे बड़ा वाणिज्यिक कोकून व्यापार बाजार कहाँ स्थित है?","options":["रामनगर (कर्नाटक)","चांपा (छत्तीसगढ़)","मालदा (पश्चिम बंगाल)","धर्मपुरी (तमिलनाडु)"],"answer":0},
+      {"question":"9. विश्व में सुनहरे 'मूंगा रेशम' (Muga Silk) के उत्पादन पर किस भारतीय राज्य का एकाधिकार (GI Monopoly) है?","options":["मणिपुर","मेघालय","असम","नागालैंड"],"answer":2},
+      {"question":"10. छत्तीसगढ़ का कौन सा प्रशासनिक संभाग प्राकृतिक साल-आधारित रेली कोकून का अधिकतम उत्पादन करता है?","options":["बिलासपुर संभाग","दुर्ग संभाग","सरगुजा संभाग","बस्तर संभाग"],"answer":3},
+      {"question":"11. केंद्रीय तसर रेशमकीट बीज स्टेशन (CTSSS) छत्तीसगढ़ में कहाँ स्थित है?","options":["लाखा (रायगढ़)","कोण्डागांव","दंतेवाड़ा","चांपा"],"answer":0},
+      {"question":"12. उष्णकटिबंधीय तसर रेशमकीट (Antheraea mylitta) का सही कीटवैज्ञानिक गण (Order) एवं कुल (Family) क्या है?","options":["डिप्टेरा : बॉम्बीसिडी","लेपिडोप्टेरा : सैटर्निइडी","कोलियोप्टेरा : कॉम्ब्रीटेसी","हेमिप्टेरा : सैटर्निइडी"],"answer":1},
+      {"question":"13. वयस्क सैटर्निइड शलभों (तसर) को बॉम्बीसिड शलभों (शहतूत) से पृथक करने वाला प्रमुख आकारिकीय लक्षण कौन सा है?","options":["पंखों पर पारदर्शी नेत्र-धब्बे (Ocelli/Fenestrae)","संयुक्त नेत्रों की अनुपस्थिति","मजबूत मुखांग","लंबी पिछली टांगें"],"answer":0},
+      {"question":"14. वयस्क नर उष्णकटिबंधीय तसर शलभ (Antheraea mylitta) में किस प्रकार का शृंगिका (Antenna) पाया जाता है?","options":["फिलीफॉर्म (Filiform)","बाइपेक्टिनेट (Bipectinate)","कैपिटेट (Capitate)","मोनिलीफॉर्म (Moniliform)"],"answer":1},
+      {"question":"15. उष्णकटिबंधीय तसर रेशमकीट (Antheraea mylitta) में दर्ज द्विगुणित (2n) गुणसूत्र संख्या कितनी है?","options":["2n = 28","2n = 48","2n = 56","2n = 62"],"answer":3},
+      {"question":"16. रेशमकीट लार्वा में पाई जाने वाली रेशम ग्रंथियां (Silk Glands) वास्तव में किसका विकासात्मक रूपांतरण हैं?","options":["लैबियल ग्रंथियां (लार ग्रंथियां)","मैक्सिलरी ग्रंथियां","मैंडिबुलर ग्रंथियां","मैलपीघियन नलिकाएं"],"answer":0},
+      {"question":"17. रेशमकीट कैटरपिलर के शरीर पर पुच्छीय शृंग (Caudal Horn) किस उदर खंड के पृष्ठीय भाग पर स्थित होता है?","options":["5वें उदर खंड","6वें उदर खंड","8वें उदर खंड","10वें उदर खंड"],"answer":2},
+      {"question":"18. रेशम कताई के समय अग्र रेशम प्रेस में चिकनाई युक्त स्राव छोड़ने वाली सहायक ग्रंथि कौन सी है?","options":["फिलिपी (लियोनेट) ग्रंथि","प्रोथोरैसिक ग्रंथि","कॉरपोरा एलाटा","ग्रीन ग्रंथि"],"answer":0},
+      {"question":"19. छत्तीसगढ़ में उष्णकटिबंधीय तसर रेशमकीट के दो प्रमुख प्राथमिक पोषक वृक्ष (Primary Host Plants) कौन से हैं?","options":["साल एवं सागौन","असन (Terminalia tomentosa) एवं अर्जुन (Terminalia arjuna)","धौरा एवं खैर","शहतूत एवं अरंडी"],"answer":1},
+      {"question":"20. तसर पोषक वृक्ष अर्जुन और असन वानस्पतिक रूप से किस कुल (Family) के अंतर्गत आते हैं?","options":["Dipterocarpaceae","Combretaceae","Moraceae","Fabaceae"],"answer":1},
+      {"question":"21. छत्तीसगढ़ी स्थानीय बोली में 'टर्मिनेलिया अर्जुन' (Terminalia arjuna) वृक्ष को किस नाम से जाना जाता है?","options":["साजा","कहुआ या कोहा","धौरा","हर्दा"],"answer":1},
+      {"question":"22. एरी रेशमकीट (Samia ricini) का प्राथमिक पोषक पौधा कौन सा है?","options":["अरंडी (Ricinus communis)","सोम (Machilus bombycina)","शहतूत (Morus alba)","साजा (Terminalia tomentosa)"],"answer":0},
+      {"question":"23. टर्मिनेलिया अर्जुन एवं टर्मिनेलिया टोमेंटोसा का फल वानस्पतिक रूप से किस प्रकार का होता है?","options":["बेरी (Berry)","5-पक्षीय रेशेदार काष्ठीय ड्रूप (Drupe)","सोरोसिस (Sorosis)","कैप्सूल (Capsule)"],"answer":1},
+      {"question":"24. शहतूत (Morus alba) के खाने योग्य समग्र फल को वानस्पतिक रूप से क्या कहा जाता है?","options":["साइकोनस","ड्रूप","सोरोसिस","लोमेंटम"],"answer":2},
+      {"question":"25. सीएसआरटीआई (CSRTI) मैसूर द्वारा सिंचित क्षेत्रों हेतु अनुशंसित शहतूत की उच्च उपज देने वाली किस्म कौन सी है?","options":["विक्ट्री-1 (V1)","कनवा-2 (K2)","एस-36","एम-5"],"answer":0},
+      {"question":"26. छत्तीसगढ़ में बाह्य तसर कीटपालन हेतु आदर्श तापमान एवं सापेक्ष आर्द्रता (RH) कितनी होनी चाहिए?","options":["18°C से 22°C और 50% से 60%","25°C से 32°C और 70% से 85%","35°C से 40°C और 40% से 50%","15°C से 25°C और 90% से 95%"],"answer":1},
+      {"question":"27. रेशम पोषक पौधों और कीटपालन के लिए उपयुक्त मृदा का आदर्श pH मान कितना होना चाहिए?","options":["4.5 से 5.2","5.5 से 6.0","6.2 से 6.8","7.8 से 8.5"],"answer":2},
+      {"question":"28. रेशम प्लॉट्स में अम्लीय मृदा (pH < 5.5) के सुधार हेतु किस मृदा सुधारक (Soil amendment) की संस्तुति की जाती है?","options":["कृषि चूना (CaCO3) या डोलोमाइट","जिप्सम","आयरन पाइराइट्स","यूरिया"],"answer":0},
+      {"question":"29. छत्तीसगढ़ के कुल रेशम उत्पादन में 90% से अधिक का भारी योगदान किस रेशम किस्म का है?","options":["शहतूती रेशम","उष्णकटिबंधीय तसर (कोसा) रेशम","एरी रेशम","मूंगा रेशम"],"answer":1},
+      {"question":"30. किस रेशम को 'अहिंसा रेशम' कहा जाता है क्योंकि इसमें धागा निष्कर्षण से पूर्व शलभ प्राकृतिक रूप से बाहर निकल जाता है?","options":["शहतूत रेशम","तसर रेशम","एरी रेशम","मूंगा रेशम"],"answer":2},
+      {"question":"31. छत्तीसगढ़ का कौन सा शहर 'कोसा सिल्क की राजधानी' अथवा 'सिल्क सिटी' के नाम से प्रसिद्ध है?","options":["रायगढ़","चांपा (जांजगीर-चांपा)","जगदलपुर","धमतरी"],"answer":1},
+      {"question":"32. छत्तीसगढ़ में कोसा रेशम की कताई और बुनाई का कार्य पारंपरिक रूप से किस समुदाय द्वारा किया जाता है?","options":["देवांगन (कोष्ठा) समुदाय","कमर समुदाय","हलबा समुदाय","बिरहोर समुदाय"],"answer":0},
+      {"question":"33. पारंपरिक छत्तीसगढ़ी कोकून व्यापार माप में एक 'कहन' (Kahan) का मान कितने कोकून के बराबर होता है?","options":["80 कोकून","320 कोकून","1,280 कोकून","1,600 कोकून"],"answer":2},
+      {"question":"34. छत्तीसगढ़ की पारंपरिक कोकून गणना तालिका में एक 'पोन' (Pon) कितने कोकून के बराबर होता है?","options":["20 कोकून","40 कोकून","80 कोकून","100 कोकून"],"answer":2},
+      {"question":"35. तसर रेशम तंतु (Silk Filament) के आंतरिक कोर का निर्माण करने वाला मुख्य संरचनात्मक रेशेदार प्रोटीन कौन सा है?","options":["सेरिसिन","फाइब्रोइन","केराटिन","कोलेजन"],"answer":1},
+      {"question":"36. शुद्ध कच्चे रेशम (Raw Silk) के लिए अंतरराष्ट्रीय मानक परीक्षण अनुसार आधिकारिक नमी पुनर्प्राप्ति (Moisture Regain) प्रतिशत क्या है?","options":["8.5%","11.0%","13.5%","15.0%"],"answer":1},
+      {"question":"37. रेशम फाइब्रोइन प्रोटीन की प्राथमिक संरचना में किन तीन अमीनो अम्लों की प्रधानता होती है?","options":["ग्लाइसीन, एलानिन और सेरीन","लाइसिन, वेलीन और ट्रिप्टोफैन","मेथियोनीन, प्रोलिन और ल्यूसीन","ग्लूटामिक एसिड, एस्पार्टिक एसिड और हिस्टिडीन"],"answer":0},
+      {"question":"38. तसर रेशमकीट (Antheraea mylitta) का जीवन चक्र कीटविज्ञान के अनुसार किस प्रकार का कायांतरण दर्शाता है?","options":["अपूरणीय कायांतरण (Ametabolous)","अपूर्ण कायांतरण (Hemimetabolous)","पूर्ण कायांतरण (Holometabolous)","अप्रत्यक्ष अपूर्ण कायांतरण (Paurometabolous)"],"answer":2},
+      {"question":"39. रेशमकीट लार्वा में त्वचा निर्मोचन (Ecdysis / Molting) की प्रक्रिया को प्रेरित करने वाला हार्मोन कौन सा है?","options":["जुवेनाइल हार्मोन (JH)","एक्डाइसोन (Ecdysone)","डायपॉज हार्मोन (DH)","फेरोमोन"],"answer":1},
+      {"question":"40. रेशम ग्रंथि का कौन सा भाग 'सेरिसिन' (गोंद सदृश आवरण) का संश्लेषण और स्रावण करता है?","options":["अग्र रेशम ग्रंथि (ASG)","मध्य रेशम ग्रंथि (MSG)","पश्च रेशम ग्रंथि (PSG)","स्पिनरेट"],"answer":1},
+      {"question":"41. कोकून से बाहर निकलते समय वयस्क रेशम शलभ कठोर आवरण को गलाने के लिए किस एंजाइम का स्राव करता है?","options":["पेप्सिन","कोकूनेज (Cocoonase)","एमाइलेज","लाइपेज"],"answer":1},
+      {"question":"42. बस्तर के सघन साल वनों में पाई जाने वाली प्रसिद्ध स्थानिक जंगली तसर इको-रेस कौन सी है?","options":["डाबा (Daba)","रेली (Raily)","सुकिंदा (Sukinda)","मोडाल (Modal)"],"answer":1},
+      {"question":"43. छत्तीसगढ़ में ब्लॉक प्लांटेशनों में व्यावसायिक रूप से कृषकों द्वारा सर्वाधिक पाली जाने वाली तसर इको-रेस कौन सी है?","options":["डाबा","रेली","सरिहन","भंडारा"],"answer":0},
+      {"question":"44. बस्तर के वनों से साल-आधारित प्राकृतिक रेली कोकून एकत्र करने की स्थानीय प्रथा को क्या कहा जाता है?","options":["कोसा बीजना","कोसा टिपई","कोसा झड़ाई","कोसा कटाई"],"answer":1},
+      {"question":"45. मध्य भारत में तसर रेशमकीट की प्यूपा सुप्तावस्था (Pupal Diapause) की अवधि लगभग कितनी होती है?","options":["2 से 3 माह","4 से 5 माह","7 से 8 माह (नवंबर से जून)","10 से 11 माह"],"answer":2},
+      {"question":"46. रेशमकीट में होने वाला घातक 'पेब्रिन' (Pebrine) रोग किस प्रोटोजोआ परजीवी के कारण होता है?","options":["Nosema bombycis","Beauveria bassiana","Bacillus thuringiensis","Streptococcus faecalis"],"answer":0},
+      {"question":"47. रेशमकीट में 'व्हाइट मस्कार्डिन' (White Muscardine) रोग का रोगजनक कारक कौन सा कवक है?","options":["Beauveria bassiana","Aspergillus flavus","Fusarium oxysporum","Metarhizium anisopliae"],"answer":0},
+      {"question":"48. रेशमकीट पालन में पछेती अवस्था के लार्वा को गंभीर क्षति पहुँचाने वाली परजीवी 'उजी मक्खी' का वैज्ञानिक नाम क्या है?","options":["Musca domestica","Exorista bombycis","Drosophila melanogaster","Bactrocera dorsalis"],"answer":1},
+      {"question":"49. केंद्रीय तसर अनुसंधान एवं प्रशिक्षण संस्थान (CTR&TI) कहाँ स्थित है?","options":["मैसूर (कर्नाटक)","रांची (झारखंड)","बेरहामपुर (पश्चिम बंगाल)","जोरहाट (असम)"],"answer":1},
+      {"question":"50. रेशम रीलिंग प्रक्रिया से पूर्व कोकून के रेशे को नुकसान पहुँचाए बिना अंदर स्थित प्यूपा को निष्क्रिय/मारने की प्रक्रिया क्या कहलाती है?","options":["डीगमिंग (Degumming)","स्टिफ्लिंग (Stifling)","क्रॉइसर (Croissure)","कुकिंग (Cooking)"],"answer":1}
     ];
 
     let questions = [], currentIndex = 0, userAnswers = {}, timerInterval = null, timeLeft = 0, initialTime = 0, currentSubject = "Sericulture Master Exam", candidateName = "Vishal Tripathi", examStartTime = null;
@@ -301,163 +294,4 @@
           answer: (i % 4)
         });
       }
-      startExamTimer(count === 50 ? 30 : 60);
-    }
-
-    function startExamTimer(minutes) {
-      initialTime = minutes * 60;
-      timeLeft = initialTime;
-      currentIndex = 0;
-      userAnswers = {};
-      examStartTime = new Date();
-      launchExamUI();
-    }
-
-    function launchExamUI() {
-      document.getElementById('homeView').classList.add('hidden');
-      document.getElementById('resultView').classList.add('hidden');
-      document.getElementById('testView').classList.remove('hidden');
-      document.getElementById('timerDisplay').classList.remove('hidden');
-      renderQuestion();
-      if (timerInterval) clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        const m = Math.floor(timeLeft / 60);
-        const s = timeLeft % 60;
-        document.getElementById('timerDisplay').innerText = `⏱️ ${m}:${s < 10 ? '0' : ''}${s}`;
-        if (timeLeft <= 0) { clearInterval(timerInterval); finishTest(); }
-      }, 1000);
-    }
-
-    function renderQuestion() {
-      const q = questions[currentIndex];
-      document.getElementById('qIndex').innerText = `Question ${currentIndex + 1} of ${questions.length}`;
-      document.getElementById('qText').innerText = q.question;
-      const container = document.getElementById('optionsContainer');
-      container.innerHTML = '';
-      (q.options || []).forEach((opt, idx) => {
-        const div = document.createElement('div');
-        div.className = 'option' + (userAnswers[currentIndex] === idx ? ' selected' : '');
-        div.innerText = `${String.fromCharCode(65 + idx)}. ${opt}`;
-        div.onclick = () => { userAnswers[currentIndex] = idx; renderQuestion(); };
-        container.appendChild(div);
-      });
-      document.getElementById('prevBtn').disabled = (currentIndex === 0);
-      document.getElementById('nextBtn').innerText = (currentIndex === questions.length - 1) ? 'Review & Submit' : 'Save & Next';
-    }
-
-    function navigateQuestion(step) {
-      if (step === 1 && currentIndex === questions.length - 1) { confirmSubmit(); return; }
-      currentIndex = Math.max(0, Math.min(questions.length - 1, currentIndex + step));
-      renderQuestion();
-    }
-
-    function confirmSubmit() {
-      const answered = Object.keys(userAnswers).length;
-      if (confirm(`सबमिट करना चाहते हैं?\n\nकुल हल किए गए: ${answered}\nछोड़े गए: ${questions.length - answered}`)) finishTest();
-    }
-
-    function finishTest() {
-      clearInterval(timerInterval);
-      const examEndTime = new Date();
-      const timeSpentSeconds = initialTime - timeLeft;
-      const timeSpentMinutes = Math.max(1, Math.round(timeSpentSeconds / 60));
-
-      let correct = 0, wrong = 0, unattempted = 0;
-      questions.forEach((q, idx) => {
-        if (userAnswers[idx] === undefined) unattempted++;
-        else if (userAnswers[idx] === q.answer) correct++;
-        else wrong++;
-      });
-      const netScore = (correct * 1.0) - (wrong * 0.25);
-      const attempted = correct + wrong;
-      const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
-
-      document.getElementById('testView').classList.add('hidden');
-      document.getElementById('timerDisplay').classList.add('hidden');
-      document.getElementById('resultView').classList.remove('hidden');
-
-      document.getElementById('reportSubjectTag').innerText = `विषय: ${currentSubject}`;
-      document.getElementById('reportMetaInfo').innerText = `परीक्षार्थी: ${candidateName} | दिनांक: ${formatDateTime(examStartTime)} से ${formatDateTime(examEndTime)}`;
-      document.getElementById('resNetScore').innerText = netScore.toFixed(2);
-      document.getElementById('resAccuracy').innerText = `${accuracy}%`;
-      document.getElementById('resCorrect').innerText = correct;
-      document.getElementById('resWrong').innerText = wrong;
-      document.getElementById('resTotal').innerText = questions.length;
-      document.getElementById('resAttempted').innerText = attempted;
-      document.getElementById('resUnattempted').innerText = unattempted;
-      document.getElementById('resTimeTaken').innerText = `${timeSpentMinutes} मिनट`;
-
-      const reviewList = document.getElementById('reviewList');
-      reviewList.innerHTML = '';
-      questions.forEach((q, idx) => {
-        const userChoice = userAnswers[idx];
-        const isCorrect = userChoice === q.answer;
-        const isBlank = userChoice === undefined;
-        const item = document.createElement('div');
-        item.className = 'review-item';
-        item.innerHTML = `
-          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">${idx + 1}. ${q.question}</div>
-          <div style="font-size:12.5px; margin-bottom:2px;">आपका उत्तर: <b class="${isBlank ? 'badge-skip' : (isCorrect ? 'badge-correct' : 'badge-wrong')}">${isBlank ? 'छोड़ा गया (Unattempted)' : `${String.fromCharCode(65 + userChoice)}. ${q.options[userChoice]}`}</b></div>
-          <div style="font-size:12.5px; color:var(--success);">सही उत्तर: <b>${String.fromCharCode(65 + q.answer)}. ${q.options[q.answer]}</b></div>
-        `;
-        reviewList.appendChild(item);
-      });
-    }
-
-    function toggleReview() { document.getElementById('reviewContainer').classList.toggle('hidden'); }
-
-    // PDF Export Function using jsPDF & Canvas
-    async function exportReportToPDF() {
-      const btn = document.getElementById('exportPdfBtn');
-      const originalText = btn.innerText;
-      btn.innerText = "⏳ Generating PDF...";
-      btn.disabled = true;
-
-      // Ensure review container is visible for the exported report
-      const reviewBox = document.getElementById('reviewContainer');
-      const wasHidden = reviewBox.classList.contains('hidden');
-      reviewBox.classList.remove('hidden');
-
-      try {
-        const reportElement = document.getElementById('printableReport');
-        const canvas = await html2canvas(reportElement, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: '#ffffff'
-        });
-
-        const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = pdfWidth - 20; // 10mm margins
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        let heightLeft = imgHeight;
-        let position = 10;
-
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= (pdfHeight - 20);
-
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight + 10;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-          heightLeft -= (pdfHeight - 20);
-        }
-
-        const safeDate = new Date().toISOString().slice(0, 10);
-        pdf.save(`Exam_Report_${candidateName.replace(/\\s+/g, '_')}_${safeDate}.pdf`);
-      } catch (err) {
-        alert("PDF तैयार करने में त्रुटि: " + err.message);
-      } finally {
-        if (wasHidden) reviewBox.classList.add('hidden');
-        btn.innerText = originalText;
-        btn.disabled = false;
-      }
-    }
-  </script>
-</body>
-</html>
+      startExamTimer(count === 5
