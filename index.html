@@ -163,21 +163,33 @@
       return rawStr || "कृषि एवं सस्य विज्ञान नोट्स";
     }
 
-    // AI द्वारा भेजे गए डेटा को सुरक्षित रूप से साफ़ और मानकीकृत करना
+    function safeParseJSON(str) {
+      try {
+        const clean = str.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const start = clean.indexOf('[');
+        const end = clean.lastIndexOf(']');
+        if (start !== -1 && end !== -1 && end > start) {
+          return JSON.parse(clean.substring(start, end + 1));
+        }
+      } catch (e) {
+        console.warn("JSON slice parse failed:", e);
+      }
+      return null;
+    }
+
     function normalizeQuestions(parsed) {
       let list = Array.isArray(parsed) ? parsed : (parsed.questions || parsed.mcqs || []);
       if (!Array.isArray(list) || list.length === 0) return [];
 
       return list.map((item, idx) => {
         const qText = item.question || item.q || `प्रश्न ${idx + 1}`;
-        let opts = item.options || item.choices || item.opts;
+        let rawOpts = item.options || item.choices || item.opts || [];
+        let opts = [];
 
-        if (Array.isArray(opts)) {
-          opts = opts.map(o => String(o));
-        } else if (typeof opts === 'object' && opts !== null) {
-          opts = Object.values(opts).map(o => String(o));
-        } else {
-          opts = ["विकल्प A", "विकल्प B", "विकल्प C", "विकल्प D"];
+        if (Array.isArray(rawOpts)) {
+          opts = rawOpts.map(o => String(o).trim());
+        } else if (typeof rawOpts === 'object' && rawOpts !== null) {
+          opts = Object.values(rawOpts).map(o => String(o).trim());
         }
 
         while (opts.length < 4) {
@@ -185,11 +197,12 @@
         }
 
         let ans = 0;
-        if (typeof item.answer === 'number' && item.answer >= 0 && item.answer < opts.length) {
+        if (typeof item.answer === 'number' && item.answer >= 0 && item.answer < 4) {
           ans = item.answer;
         } else if (typeof item.answer === 'string') {
-          const charCode = item.answer.trim().toUpperCase().charCodeAt(0) - 65;
-          if (charCode >= 0 && charCode < opts.length) ans = charCode;
+          const char = item.answer.trim().toUpperCase().charAt(0);
+          const idxChar = char.charCodeAt(0) - 65;
+          if (idxChar >= 0 && idxChar < 4) ans = idxChar;
         }
 
         return { question: qText, options: opts.slice(0, 4), answer: ans };
@@ -220,7 +233,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             messages: [
-              { role: "system", content: "You output strictly raw JSON array of MCQs: [{\"question\":\"...\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"answer\":0}]. No markdown or commentary." },
+              { role: "system", content: "You output strictly a raw JSON array of MCQs: [{\"question\":\"...\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"answer\":0}]. No markdown code block or commentary." },
               { role: "user", content: prompt }
             ],
             model: "openai",
@@ -231,14 +244,12 @@
         if (!response.ok) throw new Error("AI सर्वर से उत्तर नहीं मिला। कृपया पुनः प्रयास करें।");
 
         const rawReply = await response.text();
-        const start = rawReply.indexOf('[');
-        const end = rawReply.lastIndexOf(']');
-        if (start === -1 || end === -1) throw new Error("प्रश्नों की सूची तैयार नहीं हो सकी। कृपया दोबारा प्रयास करें।");
+        const parsedRaw = safeParseJSON(rawReply);
+        
+        if (!parsedRaw) throw new Error("प्रश्नों का स्वरूप सही नहीं मिला। कृपया दोबारा प्रयास करें।");
 
-        const parsedRaw = JSON.parse(rawReply.substring(start, end + 1));
         questions = normalizeQuestions(parsedRaw);
-
-        if (questions.length === 0) throw new Error("मान्य प्रश्न प्रारूप नहीं मिला।");
+        if (questions.length === 0) throw new Error("कोई मान्य प्रश्न नहीं मिला।");
 
         timeLeft = 30 * 60;
         currentIndex = 0;
