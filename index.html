@@ -39,7 +39,7 @@
     .stat-val { font-size: 20px; font-weight: 700; color: var(--primary); }
     .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .review-item { border-bottom: 1px solid var(--border); padding: 12px 0; text-align: left; }
-    #status { font-weight: 700; font-size: 14px; margin-top: 10px; text-align: center; min-height: 20px; }
+    #status { font-weight: 700; font-size: 14px; margin-top: 10px; text-align: center; min-height: 24px; padding: 6px; }
   </style>
 </head>
 <body>
@@ -53,7 +53,7 @@
     <div class="card">
       <h3>🔑 Gemini Pro API Settings</h3>
       <p>अपनी API Key यहाँ डालें:</p>
-      <input type="text" id="apiKeyInput" class="input-box" placeholder="Paste API Key">
+      <input type="text" id="apiKeyInput" class="input-box" placeholder="Paste API Key (AQ.Ab8... / AIza...)">
       <button class="btn btn-green" id="saveKeyBtn" type="button" onclick="saveKeyExplicit()">Save API Key</button>
       <div id="keyStatus" style="font-size:12px; margin-top:6px;"></div>
     </div>
@@ -144,7 +144,7 @@
       const savedKey = localStorage.getItem('gemini_api_key');
       if (savedKey) {
         document.getElementById('apiKeyInput').value = savedKey;
-        document.getElementById('keyStatus').innerHTML = '<span style="color:var(--success); font-weight:600;">✓ API Key डिवाइस में सुरक्षित है!</span>';
+        document.getElementById('keyStatus').innerHTML = '<span style="color:var(--success); font-weight:600;">✓ API Key सक्रिय है!</span>';
         document.getElementById('saveKeyBtn').innerText = '✓ Key Saved';
       }
     };
@@ -152,69 +152,81 @@
     function saveKeyExplicit() {
       const val = document.getElementById('apiKeyInput').value.trim();
       if (!val) {
-        document.getElementById('keyStatus').innerHTML = '<span style="color:var(--danger);">Key नहीं मिली!</span>';
+        alert("कृपया पहले API Key पेस्ट करें!");
         return;
       }
       localStorage.setItem('gemini_api_key', val);
-      document.getElementById('keyStatus').innerHTML = '<span style="color:var(--success); font-weight:600;">✓ API Key सेव हो गई!</span>';
+      document.getElementById('keyStatus').innerHTML = '<span style="color:var(--success); font-weight:600;">✓ API Key सुरक्षित सेव हो गई!</span>';
       document.getElementById('saveKeyBtn').innerText = '✓ Key Saved';
+      alert("API Key सुरक्षित सेव हो चुकी है!");
     }
 
     async function extractPdfText(file) {
       const arrayBuffer = await file.arrayBuffer();
-      if (window.pdfjsLib) {
-        try {
+      let text = "";
+      try {
+        if (window.pdfjsLib) {
           pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
           const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-          let text = "";
           const pages = Math.min(pdf.numPages, 10);
           for (let i = 1; i <= pages; i++) {
             const page = await pdf.getPage(i);
             const content = await page.getTextContent();
             text += content.items.map(item => item.str).join(' ') + "\n";
           }
-          if (text.trim().length > 100) return text;
-        } catch (e) {
-          console.warn("PDF.js fallback to binary text", e);
+          if (text.trim().length > 50) return text;
         }
+      } catch (e) {
+        console.warn("PDF parser fallback active:", e);
       }
+
+      // Plaintext fallback
       const bytes = new Uint8Array(arrayBuffer);
       let rawStr = "";
-      for (let i = 0; i < Math.min(bytes.length, 50000); i++) {
+      for (let i = 0; i < Math.min(bytes.length, 30000); i++) {
         if (bytes[i] >= 32 && bytes[i] <= 126) rawStr += String.fromCharCode(bytes[i]);
       }
-      return rawStr;
+      return rawStr || "कृषि एवं सस्य विज्ञान सामान्य अध्ययन नोट्स";
     }
 
     async function processPdf() {
       const status = document.getElementById('status');
-      const key = document.getElementById('apiKeyInput').value.trim() || localStorage.getItem('gemini_api_key');
-      
+      const inputVal = document.getElementById('apiKeyInput').value.trim();
+      const savedKey = localStorage.getItem('gemini_api_key');
+      const key = inputVal || savedKey;
+
       if (!key) {
-        status.innerHTML = '<span style="color:var(--danger);">❌ कृपया ऊपर API Key पेस्ट करें!</span>';
+        status.innerHTML = '<span style="color:var(--danger);">❌ ऊपर अपनी API Key पेस्ट करके Save दबाएं!</span>';
+        alert("कृपया पहले ऊपर अपनी API Key पेस्ट करें!");
         return;
       }
       localStorage.setItem('gemini_api_key', key);
 
       const fileInput = document.getElementById('pdfFileInput');
       if (!fileInput.files || !fileInput.files[0]) {
-        status.innerHTML = '<span style="color:var(--danger);">❌ कृपया एक PDF फ़ाइल चुनें!</span>';
+        status.innerHTML = '<span style="color:var(--danger);">❌ कृपया पहले Choose file से PDF चुनें!</span>';
+        alert("कृपया पहले PDF फ़ाइल चुनें!");
         return;
       }
 
       currentSubject = document.getElementById('subjectSelect').value;
       status.style.color = "var(--primary)";
-      status.innerText = "⏳ PDF पढ़ी जा रही है...";
+      status.innerText = "⏳ 1/2: PDF पढ़ी जा रही है...";
 
       try {
         const fullText = await extractPdfText(fileInput.files[0]);
-        status.innerText = "🤖 Gemini सवाल तैयार कर रहा है (15-20 सेकंड रुकें)...";
+        status.innerText = "🤖 2/2: Gemini AI प्रश्न तैयार कर रहा है (15-20 सेकंड रुकें)...";
 
-        const prompt = `Act as an expert Agricultural Science Exam Controller for State PCS / Competitive exams. Based on the provided text, generate exactly 50 objective Multiple Choice Questions (MCQs) in Hindi focused on: ${currentSubject}. Each question must have 4 clear options and exactly one correct answer index (0, 1, 2, or 3). Strictly output ONLY a raw JSON Array: [{"question":"प्रश्न...","options":["A","B","C","D"],"answer":0}]. No markdown code fences.\n\nText:\n${fullText.slice(0, 8000)}`;
+        const prompt = `Act as an expert Agricultural Science Exam Controller for State PCS / Competitive exams. Based on the provided text, generate exactly 50 objective Multiple Choice Questions (MCQs) in Hindi focused on: ${currentSubject}. Each question must have 4 clear options and exactly one correct answer index (0, 1, 2, or 3). Strictly output ONLY a raw JSON Array: [{"question":"प्रश्न...","options":["A","B","C","D"],"answer":0}]. No markdown, no backticks.\n\nText:\n${fullText.slice(0, 8000)}`;
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+        // दोनों ऑथेंटिकेशन विधियों (Header और Query param) के साथ रिक्वेस्ट
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(key)}`;
+        const response = await fetch(apiUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': key
+          },
           body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
 
@@ -224,14 +236,16 @@
         const rawReply = data.candidates[0].content.parts[0].text;
         const start = rawReply.indexOf('[');
         const end = rawReply.lastIndexOf(']');
-        questions = JSON.parse(rawReply.substring(start, end + 1));
+        if (start === -1 || end === -1) throw new Error("JSON Array नहीं मिला।");
 
+        questions = JSON.parse(rawReply.substring(start, end + 1));
         timeLeft = 30 * 60;
         currentIndex = 0;
         userAnswers = {};
         launchExamUI();
       } catch (err) {
         status.innerHTML = `<span style="color:var(--danger);">❌ त्रुटि: ${err.message}</span>`;
+        alert("त्रुटि: " + err.message);
       }
     }
 
