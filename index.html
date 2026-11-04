@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agronomy Exam Simulator Pro</title>
+  <title>Agronomy Exam Simulator - Gemini Pro</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <style>
     :root {
@@ -45,19 +45,22 @@
 <body>
 
   <div class="header">
-    <div style="font-weight:700; font-size:16px;">🌾 Agronomy Test Simulator (Direct AI)</div>
+    <div style="font-weight:700; font-size:16px;">🌾 Agronomy Test Simulator (Gemini Pro)</div>
     <div id="timerDisplay" class="timer hidden">00:00</div>
   </div>
 
   <div class="container" id="homeView">
-    <div class="card" style="border-left: 4px solid var(--success);">
-      <h3 style="color:var(--success); margin-bottom:4px;">✨ डायरेक्ट मोड सक्रिय है</h3>
-      <p style="margin:0;">बिना किसी API Key के सीधे PDF अपलोड करके टेस्ट शुरू करें।</p>
+    <div class="card">
+      <h3>🔑 Gemini Pro API Key</h3>
+      <p>अपनी Gemini API Key यहाँ डालें (एक बार सेव होने पर दोबारा नहीं डालनी होगी):</p>
+      <input type="text" id="apiKeyInput" class="input-box" placeholder="Paste API Key (AQ.Ab8... या AIza...)">
+      <button class="btn btn-green" id="saveKeyBtn" type="button" onclick="saveKeyExplicit()">Save API Key</button>
+      <div id="keyStatus" style="font-size:12px; margin-top:6px;"></div>
     </div>
 
     <div class="card">
       <h3>📄 Direct PDF to Test</h3>
-      <p>विषय चुनें और कृषि नोट्स की PDF अपलोड करें:</p>
+      <p>विषय चुनें और PDF अपलोड करें (50 MCQs):</p>
       
       <label style="font-size:12px; font-weight:600; color:var(--muted);">विषय चयन (Subject Filter):</label>
       <select id="subjectSelect">
@@ -137,6 +140,24 @@
   <script>
     let questions = [], currentIndex = 0, userAnswers = {}, timerInterval = null, timeLeft = 0, currentSubject = "General Agronomy";
 
+    window.onload = function() {
+      const savedKey = localStorage.getItem('gemini_api_key');
+      if (savedKey) {
+        document.getElementById('apiKeyInput').value = savedKey;
+        document.getElementById('keyStatus').innerHTML = '<span style="color:var(--success); font-weight:600;">✓ API Key डिवाइस में सुरक्षित है!</span>';
+        document.getElementById('saveKeyBtn').innerText = '✓ Key Saved';
+      }
+    };
+
+    function saveKeyExplicit() {
+      const val = document.getElementById('apiKeyInput').value.trim();
+      if (!val) { alert("कृपया पहले API Key पेस्ट करें!"); return; }
+      localStorage.setItem('gemini_api_key', val);
+      document.getElementById('keyStatus').innerHTML = '<span style="color:var(--success); font-weight:600;">✓ API Key सुरक्षित सेव हो गई!</span>';
+      document.getElementById('saveKeyBtn').innerText = '✓ Key Saved';
+      alert("API Key सुरक्षित सेव हो चुकी है!");
+    }
+
     async function extractPdfText(file) {
       const arrayBuffer = await file.arrayBuffer();
       try {
@@ -172,7 +193,7 @@
           return JSON.parse(clean.substring(start, end + 1));
         }
       } catch (e) {
-        console.warn("JSON slice parse failed:", e);
+        console.warn("JSON Parse Error:", e);
       }
       return null;
     }
@@ -211,6 +232,17 @@
 
     async function processPdf() {
       const status = document.getElementById('status');
+      const inputVal = document.getElementById('apiKeyInput').value.trim();
+      const savedKey = localStorage.getItem('gemini_api_key');
+      const key = inputVal || savedKey;
+
+      if (!key) {
+        status.innerHTML = '<span style="color:var(--danger);">❌ ऊपर API Key पेस्ट करें!</span>';
+        alert("कृपया पहले ऊपर अपनी API Key पेस्ट करें!");
+        return;
+      }
+      localStorage.setItem('gemini_api_key', key);
+
       const fileInput = document.getElementById('pdfFileInput');
       if (!fileInput.files || !fileInput.files[0]) {
         status.innerHTML = '<span style="color:var(--danger);">❌ पहले PDF फ़ाइल चुनें!</span>';
@@ -224,28 +256,26 @@
 
       try {
         const fullText = await extractPdfText(fileInput.files[0]);
-        status.innerText = "🤖 2/2: AI सवाल तैयार कर रहा है (15-20 सेकंड रुकें)...";
+        status.innerText = "🤖 2/2: Gemini Pro प्रश्न तैयार कर रहा है (15-20 सेकंड रुकें)...";
 
-        const prompt = `Act as an expert Agricultural Science Exam Controller. Based on this text, create objective MCQs in Hindi for: ${currentSubject}. Output strictly a JSON Array where every item has: "question" (string), "options" (array of 4 strings), and "answer" (integer 0, 1, 2, or 3). Raw JSON only:\n\nText:\n${fullText.slice(0, 6000)}`;
+        const prompt = `Act as an expert Agricultural Science Exam Controller for State PCS / Competitive exams. Based on the provided text, generate exactly 50 objective Multiple Choice Questions (MCQs) in Hindi focused on: ${currentSubject}. Each question must have 4 clear options and exactly one correct answer index (0, 1, 2, or 3). Strictly output ONLY a raw JSON Array: [{"question":"प्रश्न...","options":["A","B","C","D"],"answer":0}]. No markdown code fences, no extra text.\n\nText:\n${fullText.slice(0, 8000)}`;
 
-        const response = await fetch("https://text.pollinations.ai/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            messages: [
-              { role: "system", content: "You output strictly a raw JSON array of MCQs: [{\"question\":\"...\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"answer\":0}]. No markdown code block or commentary." },
-              { role: "user", content: prompt }
-            ],
-            model: "openai",
-            jsonMode: true
-          })
+        // Gemini Pro आधिकारिक एंडपॉइंट
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${encodeURIComponent(key)}`;
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': key
+          },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
 
-        if (!response.ok) throw new Error("AI सर्वर से उत्तर नहीं मिला। कृपया पुनः प्रयास करें।");
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message || 'API Error');
 
-        const rawReply = await response.text();
+        const rawReply = data.candidates[0].content.parts[0].text;
         const parsedRaw = safeParseJSON(rawReply);
-        
         if (!parsedRaw) throw new Error("प्रश्नों का स्वरूप सही नहीं मिला। कृपया दोबारा प्रयास करें।");
 
         questions = normalizeQuestions(parsedRaw);
